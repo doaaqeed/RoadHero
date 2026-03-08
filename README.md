@@ -27,25 +27,37 @@ Mechanics, towing companies, or roadside service providers can register in the a
 RoadHero offers several essential roadside services:
 
 🚚 Tow Truck – Request a tow truck to move your vehicle safely.
+
 🔋 Jump Start – Get help starting your car if the battery is dead.
+
 🛞 Tire Repair or Replacement – Fix or change a flat tire.
+
 ⛽ Fuel Delivery – Request fuel if your car runs out or nearest fuel station.
+
 🔧 On-site Mechanic – A mechanic can come directly to your location to fix issues.
 
 ## ⭐ Key Features
 
 📍 Location-Based Requests – Drivers can send their location to get nearby help.
+
 📡 Offline Help Requests – Drivers can request assistance even without an internet connection.
+
 👥 Two User Roles – The app supports both drivers and service providers.
+
 ⚡ Quick Service Requests – Request roadside help in just a few seconds.
+
 🔔 Notifications System – service provider receive notifications when a driver request a service.
+
 ⭐ Ratings and Reviews – Drivers can rate and review the service providers after completing a service.
+
 📱 Simple and User-Friendly Interface – Designed for fast and easy use during emergencies.
 
 ## 🚀 Future Improvements
 
 In-app payments
+
 Emergency contact notifications
+
 Multi-language support
 
 ## Authors
