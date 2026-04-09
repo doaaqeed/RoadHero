@@ -1,50 +1,66 @@
-# Welcome to your Expo app 👋
+# 🚗RoadHero
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## RoadHero
 
-## Get started
+RoadHero is a smart roadside assistance mobile application designed to help drivers quickly get help when they face car problems on the road.
+The app connects users with nearby service providers who can deliver immediate assistance directly to their location.
 
-1. Install dependencies
+## 📱 Overview
 
-   ```bash
-   npm install
-   ```
+RoadHero provides fast and reliable roadside services to ensure drivers are never stranded. With just a few taps, users can request emergency vehicle assistance such as towing, battery jump-start, tire repair, fuel delivery, or a mechanic at their location.
 
-2. Start the app
+One of the key advantages of RoadHero is that drivers can still request help **even if they do not have an internet connection**, making it extremely useful in remote areas or during network issues.
 
-   ```bash
-   npx expo start
-   ```
+## 👥 Types of Users
 
-In the output, you'll find options to open the app in a
+The application supports two main types of users:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 🚗 Drivers (People Requesting Help)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Drivers can use the app to quickly request roadside assistance when their vehicle breaks down.
 
-## Get a fresh project
+### 🔧 Service Providers (Individuals or Companies)
 
-When you're ready, run:
+Mechanics, towing companies, or roadside service providers can register in the app to receive service requests and assist drivers nearby.
 
-```bash
-npm run reset-project
-```
+## 🛠️ Services Provided
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+RoadHero offers several essential roadside services:
 
-## Learn more
+🚚 Tow Truck – Request a tow truck to move your vehicle safely.
 
-To learn more about developing your project with Expo, look at the following resources:
+🔋 Jump Start – Get help starting your car if the battery is dead.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+🛞 Tire Repair or Replacement – Fix or change a flat tire.
 
-## Join the community
+⛽ Fuel Delivery – Request fuel if your car runs out or nearest fuel station.
 
-Join our community of developers creating universal apps.
+🔧 On-site Mechanic – A mechanic can come directly to your location to fix issues.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## ⭐ Key Features
+
+📍 Location-Based Requests – Drivers can send their location to get nearby help.
+
+📡 Offline Help Requests – Drivers can request assistance even without an internet connection.
+
+👥 Two User Roles – The app supports both drivers and service providers.
+
+⚡ Quick Service Requests – Request roadside help in just a few seconds.
+
+🔔 Notifications System – service provider receive notifications when a driver request a service.
+
+⭐ Ratings and Reviews – Drivers can rate and review the service providers after completing a service.
+
+📱 Simple and User-Friendly Interface – Designed for fast and easy use during emergencies.
+
+## 🚀 Future Improvements
+
+In-app payments
+
+Emergency contact notifications
+
+Multi-language support
+
+## Authors
+
+developed by : **Doaa Aqeed , Mayar Hamayel , Tala Al-khatib**
