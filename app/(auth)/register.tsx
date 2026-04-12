@@ -1,79 +1,116 @@
-import {
-  ScrollView,
-  TextInput,
-  View,
-  Text,
-  Pressable,
-} from "react-native";
+import { auth, db } from "@/services/firebaseConfig";
 import Checkbox from "expo-checkbox";
-import { useState } from "react";
-import { Link } from "expo-router";
-import { useForm, Controller } from "react-hook-form";
+import { Link, useRouter } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "@/services/firebaseConfig";
-import { useRouter } from "expo-router";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+  StyleSheet,
+} from "react-native";
+import { RFValue, RFPercentage } from "react-native-responsive-fontsize";
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_600SemiBold,
+} from "@expo-google-fonts/inter";
+import { ERROR_MESSAGES } from "react-native-reanimated/lib/typescript/common";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 
-export default function Register(){
-     const [checked, setChecked] = useState(false);
-     const router = useRouter();
 
-     
-     const onSubmit = async (data) => {
-       
-       if (!checked) {
-         alert("Please agree to the Terms and Conditions");
-         return;
-       }
-       try {
-        console.log("START");
-         const userCredential = await createUserWithEmailAndPassword(
-           auth,
-           data.email,
-           data.password,
-         );
-         console.log("AUTH OK");
 
-         const user = userCredential.user;
-         console.log("USER:", userCredential.user);
 
-         await setDoc(doc(db, "users", user.uid), {
-           fullName: data.fullName,
-           email: data.email,
-           address: data.address,
-           state: data.state,
-         });
-         console.log("FIRESTORE OK");
 
-         //router.replace("/home");
-       } catch (error) {
-         console.log(error.message);
-       }
 
-       console.log(data);
-     };
+export default function Register() {
 
-       const {
-         control,
-         handleSubmit,
-         watch,
-         formState: { errors },
-       } = useForm();
+ const [loaded] = useFonts({
+   Inter_400Regular,
+   Inter_600SemiBold,
+ });
 
-       const passwordVar = watch("password"); 
+  const [checked, setChecked] = useState(false);
+  const router = useRouter();
+  
 
-    
 
-    return (
-      <ScrollView>
-        <Text> Register</Text>
-        <View>
-          <Text>Getting Started</Text>
-          <Text>Seems you are new here, Let’s set up your account.</Text>
-        </View>
+  
+  
 
-        <View>
+  const onSubmit = async (data) => {
+    if (!checked) {
+      alert("Please agree to the Terms and Conditions");
+      return;
+    }
+    try {
+      console.log("START");
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password,
+      );
+      console.log("AUTH OK");
+
+      const user = userCredential.user;
+      console.log("USER:", userCredential.user);
+
+      await setDoc(doc(db, "users", user.uid), {
+        fullName: data.fullName,
+        email: data.email,
+        address: data.address,
+        state: data.state,
+      });
+      console.log("FIRESTORE OK");
+
+      //router.replace("/");
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        alert("This email is already registered. Please login instead.");
+        router.replace("/login");
+      } else {
+        alert(error.message);
+      }
+      console.log(error.message);
+    }
+
+    console.log(data);
+  };
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({ mode: "onBlur" });
+
+  const passwordVar = watch("password");
+  if (!loaded) {
+    return null; 
+  }
+
+  return (
+    <ScrollView contentContainerStyle={{ backgroundColor: "#F5F5F5" }}>
+      <View style={styles.center}>
+        <Text style={[styles.title]}> Register</Text>
+      </View>
+
+      <View style={[styles.firstSection, styles.mB23]}>
+        <Text style={[styles.startText, styles.mB16]}>Getting Started</Text>
+        <Text style={styles.paragraph}>Seems you are new here,</Text>
+        <Text style={styles.paragraph}>Let’s set up your account.</Text>
+      </View>
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={[styles.center]}>
           <Controller
             control={control}
             name="fullName"
@@ -84,12 +121,34 @@ export default function Register(){
                 message: "Name must be at least 3 characters",
               },
             }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                placeholder="Full Name"
-                value={value}
-                onChangeText={onChange}
-              />
+            render={({
+              field: { onChange, value, onBlur },
+              fieldState: { error, isTouched },
+            }) => (
+              <>
+                <View style={{ marginBottom: 30 }}>
+                  <TextInput
+                    placeholder="Full Name"
+                    value={value}
+                    onChangeText={onChange}
+                    style={[
+                      styles.input,
+                      {
+                        borderColor: error
+                          ? "red"
+                          : isTouched
+                            ? "green"
+                            : "#ccc",
+                      },
+                    ]}
+                    onBlur={onBlur}
+                    placeholderTextColor="#706e6e"
+                  />
+                  {error && (
+                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                  )}
+                </View>
+              </>
             )}
           />
 
@@ -103,14 +162,36 @@ export default function Register(){
                 message: "Invalid email format",
               },
             }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                placeholder="Email Address"
-                value={value}
-                onChangeText={onChange}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
+            render={({
+              field: { onChange, value, onBlur },
+              fieldState: { error, isTouched },
+            }) => (
+              <>
+                <View style={{ marginBottom: 30 }}>
+                  <TextInput
+                    placeholder="Email Address"
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    style={[
+                      styles.input,
+                      {
+                        borderColor: error
+                          ? "red"
+                          : isTouched
+                            ? "green"
+                            : "#ccc",
+                      },
+                    ]}
+                    onBlur={onBlur}
+                    placeholderTextColor="#706e6e"
+                  />
+                  {error && (
+                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                  )}
+                </View>
+              </>
             )}
           />
 
@@ -118,12 +199,34 @@ export default function Register(){
             control={control}
             name="address"
             rules={{ required: "Address is required" }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                placeholder="Current Address"
-                value={value}
-                onChangeText={onChange}
-              />
+            render={({
+              field: { onChange, value, onBlur },
+              fieldState: { error, isTouched },
+            }) => (
+              <>
+                <View style={{ marginBottom: 30 }}>
+                  <TextInput
+                    placeholder="Current Address"
+                    value={value}
+                    onChangeText={onChange}
+                    style={[
+                      styles.input,
+                      {
+                        borderColor: error
+                          ? "red"
+                          : isTouched
+                            ? "green"
+                            : "#ccc",
+                      },
+                    ]}
+                    onBlur={onBlur}
+                    placeholderTextColor="#706e6e"
+                  />
+                  {error && (
+                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                  )}
+                </View>
+              </>
             )}
           />
 
@@ -133,12 +236,34 @@ export default function Register(){
             rules={{
               required: "State is required",
             }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                placeholder="State"
-                value={value}
-                onChangeText={onChange}
-              />
+            render={({
+              field: { onChange, value, onBlur },
+              fieldState: { error, isTouched },
+            }) => (
+              <>
+                <View style={{ marginBottom: 30 }}>
+                  <TextInput
+                    placeholder="State"
+                    value={value}
+                    onChangeText={onChange}
+                    style={[
+                      styles.input,
+                      {
+                        borderColor: error
+                          ? "red"
+                          : isTouched
+                            ? "green"
+                            : "#ccc",
+                      },
+                    ]}
+                    onBlur={onBlur}
+                    placeholderTextColor="#706e6e"
+                  />
+                  {error && (
+                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                  )}
+                </View>
+              </>
             )}
           />
 
@@ -152,13 +277,35 @@ export default function Register(){
                 message: "Password must be at least 6 characters",
               },
             }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                placeholder="Password"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-              />
+            render={({
+              field: { onChange, value, onBlur },
+              fieldState: { error, isTouched },
+            }) => (
+              <>
+                <View style={{ marginBottom: 30 }}>
+                  <TextInput
+                    placeholder="Password"
+                    secureTextEntry
+                    value={value}
+                    onChangeText={onChange}
+                    style={[
+                      styles.input,
+                      {
+                        borderColor: error
+                          ? "red"
+                          : isTouched
+                            ? "green"
+                            : "#ccc",
+                      },
+                    ]}
+                    onBlur={onBlur}
+                    placeholderTextColor="#706e6e"
+                  />
+                  {error && (
+                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                  )}
+                </View>
+              </>
             )}
           />
 
@@ -166,39 +313,173 @@ export default function Register(){
             control={control}
             name="confirmPassword"
             rules={{
-              required: "Confirm your password",
+              required: "Confirm Password is required",
               validate: (value) =>
                 value === passwordVar || "Passwords do not match",
             }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                placeholder="Confirm Password"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-              />
+            render={({
+              field: { onChange, value, onBlur },
+              fieldState: { error, isTouched },
+            }) => (
+              <>
+                <View style={{ marginBottom: 30 }}>
+                  <TextInput
+                    placeholder="Confirm Password"
+                    secureTextEntry
+                    value={value}
+                    onChangeText={onChange}
+                    style={[
+                      styles.input,
+                      {
+                        borderColor: error
+                          ? "red"
+                          : isTouched
+                            ? "green"
+                            : "#ccc",
+                      },
+                    ]}
+                    onBlur={onBlur}
+                    placeholderTextColor="#706e6e"
+                  />
+                  {error && (
+                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                  )}
+                </View>
+              </>
             )}
           />
         </View>
-        <View>
+      </KeyboardAvoidingView>
+
+      <View>
+        <View style={[styles.terms, styles.firstSection]}>
+          <Checkbox
+            value={checked}
+            onValueChange={setChecked}
+            style={styles.CheckboxStyle}
+          />
           <View>
-            <Checkbox value={checked} onValueChange={setChecked} />
-            <Text>
-              By creating an account, you agree to our Term and Conditions
+            <Text style={styles.padLeft_9}>
+              By creating an account, you agree to our
             </Text>
-          </View>
-          <View>
-            <Pressable onPress={handleSubmit(onSubmit)}>
-              <Text>Continue</Text>
-            </Pressable>
-          </View>
-          <View>
-            <Text>
-              Already have an account ?<Link href="/login">Login</Link>
+            <Text style={[styles.padLeft_9, styles.main_color]}>
+              Term and Conditions
             </Text>
           </View>
         </View>
-      </ScrollView>
-    );
-
+        <View style={[styles.center, styles.mT_30]}>
+          <Pressable
+            onPress={handleSubmit(onSubmit)}
+            style={styles.ContinuePress}
+          >
+            <Text style={[styles.ContinueText]}>Continue</Text>
+          </Pressable>
+        </View>
+        <View style={[styles.center, styles.mB28, styles.mT_1]}>
+          <Text>
+            Already have an account ?
+            <Link href="/login" style={styles.loginLink}>
+              Login
+            </Link>
+          </Text>
+        </View>
+      </View>
+    </ScrollView>
+  );
 }
+ const styles = StyleSheet.create({
+   title: {
+     fontWeight: "600",
+     fontSize: RFValue(18),
+     paddingTop: 20,
+     fontFamily: "Inter_600SemiBold",
+   },
+   startText: {
+     fontWeight: "600",
+     fontSize: RFValue(32),
+     paddingTop: 20,
+     fontFamily: "Inter_600SemiBold",
+   },
+   center: {
+     alignItems: "center",
+     justifyContent: "center",
+     flex: 1,
+   },
+   paragraph: {
+     fontWeight: "400",
+     fontSize: RFValue(16),
+     color: "#827f7f",
+   },
+
+   firstSection: {
+     gap: 7,
+     paddingLeft: RFValue(31),
+   },
+   mB16: {
+     marginBottom: 16,
+   },
+   mB23: {
+     marginBottom: 23,
+   },
+
+   mB28: {
+     marginBottom: 28,
+   },
+   mB_14: {
+     marginBottom: 14,
+   },
+   mT_1: {
+     marginTop: 1,
+   },
+   mT_30: {
+     marginTop: 30,
+   },
+   padLeft_9: {
+     paddingLeft: RFValue(9),
+   },
+   input: {
+     borderWidth: 1,
+     //borderColor: "#9a9696",
+     padding: RFValue(20),
+     borderRadius: RFValue(18),
+     fontSize: RFValue(12),
+     //marginBottom: 30,
+     width: RFValue(300),
+     writingDirection: "ltr",
+    
+   },
+
+   terms: {
+     flexDirection: "row",
+   },
+   CheckboxStyle: {
+     borderRadius: 6,
+   },
+   main_color: {
+     color: "#FD6B22",
+   },
+   ContinuePress: {
+     borderWidth: 1,
+     borderColor: "#ece4e4",
+     padding: RFValue(20),
+     borderRadius: RFValue(25),
+     backgroundColor: "#FD6B22",
+     marginBottom: 30,
+     width: RFValue(210),
+     alignItems: "center",
+     justifyContent: "center",
+   },
+   ContinueText: {
+     fontSize: RFValue(15),
+     color: "#f1ecec",
+   },
+   loginLink: {
+     color: "#FD6B22",
+   },
+   ERROR_MESSAGES: {
+     color: "rgba(242, 5, 5, 0.79)",
+     paddingTop: 5,
+     paddingLeft: 20,
+     fontSize: RFValue(11),
+   },
+ });
