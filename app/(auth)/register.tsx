@@ -11,16 +11,18 @@ import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-  KeyboardAvoidingView,
-  Platform,
+
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+
+
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
+
 
 export default function Register() {
   const [loaded] = useFonts({
@@ -55,11 +57,17 @@ export default function Register() {
         state: data.state,
       });
       console.log("FIRESTORE OK");
-      //doaa screen
-      router.replace("/serviceRequestScreen");
-      //tala screen
-      //router.replace("/providerDashboard");
-    } catch (error) {
+
+      if(data.state ==="user")
+        {//doaa screen
+          router.replace("/serviceRequestScreen");
+        }
+           else
+           if(data.state==="provider")
+            {//tala screen
+              //router.replace("/providerDashboard");
+      } 
+      catch (error) {
       if (error.code === "auth/email-already-in-use") {
         alert("This email is already registered. Please login instead.");
         router.replace("/login");
