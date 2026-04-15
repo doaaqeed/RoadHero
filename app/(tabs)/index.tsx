@@ -1,3 +1,4 @@
+import { Text, View } from "react-native";
 import React from 'react';
 import {
   SafeAreaView,
@@ -40,6 +41,11 @@ function QuickActionCard({
 
 export default function DashboardScreen() {
   return (
+    <View>
+      <Text>Home Page</Text>
+    </View>
+  );
+}
     <SafeAreaView style={styles.safe}>
       <ScrollView
         style={styles.container}
