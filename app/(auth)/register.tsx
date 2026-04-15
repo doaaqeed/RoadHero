@@ -1,4 +1,9 @@
 import { auth, db } from "@/services/firebaseConfig";
+import {
+  Inter_400Regular,
+  Inter_600SemiBold,
+  useFonts,
+} from "@expo-google-fonts/inter";
 import Checkbox from "expo-checkbox";
 import { Link, useRouter } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -6,42 +11,25 @@ import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
+  KeyboardAvoidingView, Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
-  View,
-  StyleSheet,
+  View
 } from "react-native";
-import { RFValue, RFPercentage } from "react-native-responsive-fontsize";
-import {
-  useFonts,
-  Inter_400Regular,
-  Inter_600SemiBold,
-} from "@expo-google-fonts/inter";
-import { ERROR_MESSAGES } from "react-native-reanimated/lib/typescript/common";
-import { KeyboardAvoidingView, Platform } from "react-native";
-
-
-
-
-
+import { RFValue } from "react-native-responsive-fontsize";
 
 
 export default function Register() {
-
- const [loaded] = useFonts({
-   Inter_400Regular,
-   Inter_600SemiBold,
- });
+  const [loaded] = useFonts({
+    Inter_400Regular,
+    Inter_600SemiBold,
+  });
 
   const [checked, setChecked] = useState(false);
   const router = useRouter();
-  
-
-
-  
-  
 
   const onSubmit = async (data) => {
     if (!checked) {
@@ -91,7 +79,7 @@ export default function Register() {
 
   const passwordVar = watch("password");
   if (!loaded) {
-    return null; 
+    return null;
   }
 
   return (
@@ -387,99 +375,98 @@ export default function Register() {
     </ScrollView>
   );
 }
- const styles = StyleSheet.create({
-   title: {
-     fontWeight: "600",
-     fontSize: RFValue(18),
-     paddingTop: 20,
-     fontFamily: "Inter_600SemiBold",
-   },
-   startText: {
-     fontWeight: "600",
-     fontSize: RFValue(32),
-     paddingTop: 20,
-     fontFamily: "Inter_600SemiBold",
-   },
-   center: {
-     alignItems: "center",
-     justifyContent: "center",
-     flex: 1,
-   },
-   paragraph: {
-     fontWeight: "400",
-     fontSize: RFValue(16),
-     color: "#827f7f",
-   },
+const styles = StyleSheet.create({
+  title: {
+    fontWeight: "600",
+    fontSize: RFValue(18),
+    paddingTop: 20,
+    fontFamily: "Inter_600SemiBold",
+  },
+  startText: {
+    fontWeight: "600",
+    fontSize: RFValue(32),
+    paddingTop: 20,
+    fontFamily: "Inter_600SemiBold",
+  },
+  center: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  paragraph: {
+    fontWeight: "400",
+    fontSize: RFValue(16),
+    color: "#827f7f",
+  },
 
-   firstSection: {
-     gap: 7,
-     paddingLeft: RFValue(31),
-   },
-   mB16: {
-     marginBottom: 16,
-   },
-   mB23: {
-     marginBottom: 23,
-   },
+  firstSection: {
+    gap: 7,
+    paddingLeft: RFValue(31),
+  },
+  mB16: {
+    marginBottom: 16,
+  },
+  mB23: {
+    marginBottom: 23,
+  },
 
-   mB28: {
-     marginBottom: 28,
-   },
-   mB_14: {
-     marginBottom: 14,
-   },
-   mT_1: {
-     marginTop: 1,
-   },
-   mT_30: {
-     marginTop: 30,
-   },
-   padLeft_9: {
-     paddingLeft: RFValue(9),
-   },
-   input: {
-     borderWidth: 1,
-     //borderColor: "#9a9696",
-     padding: RFValue(20),
-     borderRadius: RFValue(18),
-     fontSize: RFValue(12),
-     //marginBottom: 30,
-     width: RFValue(300),
-     writingDirection: "ltr",
-    
-   },
+  mB28: {
+    marginBottom: 28,
+  },
+  mB_14: {
+    marginBottom: 14,
+  },
+  mT_1: {
+    marginTop: 1,
+  },
+  mT_30: {
+    marginTop: 30,
+  },
+  padLeft_9: {
+    paddingLeft: RFValue(9),
+  },
+  input: {
+    borderWidth: 1,
+    //borderColor: "#9a9696",
+    padding: RFValue(20),
+    borderRadius: RFValue(18),
+    fontSize: RFValue(12),
+    //marginBottom: 30,
+    width: RFValue(300),
+    writingDirection: "ltr",
+  },
 
-   terms: {
-     flexDirection: "row",
-   },
-   CheckboxStyle: {
-     borderRadius: 6,
-   },
-   main_color: {
-     color: "#FD6B22",
-   },
-   ContinuePress: {
-     borderWidth: 1,
-     borderColor: "#ece4e4",
-     padding: RFValue(20),
-     borderRadius: RFValue(25),
-     backgroundColor: "#FD6B22",
-     marginBottom: 30,
-     width: RFValue(210),
-     alignItems: "center",
-     justifyContent: "center",
-   },
-   ContinueText: {
-     fontSize: RFValue(15),
-     color: "#f1ecec",
-   },
-   loginLink: {
-     color: "#FD6B22",
-   },
-   ERROR_MESSAGES: {
-     color: "rgba(242, 5, 5, 0.79)",
-     paddingTop: 5,
-     paddingLeft: 20,
-     fontSize: RFValue(11),
-   },
- });
+  terms: {
+    flexDirection: "row",
+  },
+  CheckboxStyle: {
+    borderRadius: 6,
+  },
+  main_color: {
+    color: "#FD6B22",
+  },
+  ContinuePress: {
+    borderWidth: 1,
+    borderColor: "#ece4e4",
+    padding: RFValue(20),
+    borderRadius: RFValue(25),
+    backgroundColor: "#FD6B22",
+    marginBottom: 30,
+    width: RFValue(210),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ContinueText: {
+    fontSize: RFValue(15),
+    color: "#f1ecec",
+  },
+  loginLink: {
+    color: "#FD6B22",
+  },
+  ERROR_MESSAGES: {
+    color: "rgba(242, 5, 5, 0.79)",
+    paddingTop: 5,
+    paddingLeft: 20,
+    fontSize: RFValue(11),
+  },
+});
