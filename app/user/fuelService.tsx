@@ -225,9 +225,12 @@ const styles = StyleSheet.create({
   requestButton: {
     marginLeft: 20,
     marginRight: 20,
-    marginTop: 40,
+    marginTop: 180,
     padding: 15,
     borderRadius: 15,
     alignItems: "center",
+    paddingVertical: 18,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
   },
 });

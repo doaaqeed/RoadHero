@@ -2,7 +2,7 @@ import { HelloWave } from "@/components/hello-wave";
 import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -125,126 +125,138 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView style={styles.screen}>
-      <View style={styles.container}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Welcome </Text>
-          <HelloWave />
-        </View>
-        <Text style={styles.smallTitle}>Do you need roadside assistance ?</Text>
-
-        <View style={styles.mapContainer}>
-          <MapView
-            style={styles.map}
-            region={mapRegion}
-            onRegionChangeComplete={(region) => setMapRegion(region)}
-            onPress={handleMapPress}
-          >
-            <Marker coordinate={markerCoords} />
-          </MapView>
-          {loading && (
-            <View style={styles.loader}>
-              <ActivityIndicator size="large" color="#4FBF67" />
-            </View>
-          )}
-        </View>
-
-        <View style={styles.addressSection}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.addressLabel}>Your Current Address</Text>
-            <View style={styles.addressRow}>
-              <MaterialCommunityIcons
-                name="map-marker-radius"
-                size={26}
-                color="green"
-              />
-              <Text style={styles.addressText} numberOfLines={1}>
-                {locationName}
-              </Text>
-            </View>
+    <>
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          headerLeft: () => null,
+        }}
+      />
+      <ScrollView style={styles.screen}>
+        <View style={styles.container}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>Welcome </Text>
+            <HelloWave />
           </View>
-          <Pressable style={styles.changeButton} onPress={handleAutoLocation}>
-            <Text style={styles.changeButtonText}>My Current Location</Text>
-          </Pressable>
-        </View>
-      </View>
+          <Text style={styles.smallTitle}>
+            Do you need roadside assistance ?
+          </Text>
 
-      <View style={styles.servicesGrid}>
-        {services.map((item) => (
-          <Pressable
-            key={item.id}
-            onPress={async () => {
-              const locationParams = {
-                lat: markerCoords.latitude.toString(),
-                lng: markerCoords.longitude.toString(),
-                address: locationName,
-              };
+          <View style={styles.mapContainer}>
+            <MapView
+              style={styles.map}
+              region={mapRegion}
+              onRegionChangeComplete={(region) => setMapRegion(region)}
+              onPress={handleMapPress}
+            >
+              <Marker coordinate={markerCoords} />
+            </MapView>
+            {loading && (
+              <View style={styles.loader}>
+                <ActivityIndicator size="large" color="#4FBF67" />
+              </View>
+            )}
+          </View>
 
-              if (item.title === "Fuel Delivery") {
-                router.push({
-                  pathname: "/services/fuelService",
-                  params: locationParams,
-                });
-              } else if (item.title === "Tow Truck") {
-                router.push({
-                  pathname: "/services/towService",
-                  params: locationParams,
-                });
-              } else if (item.title === "Tire Repair or Replacement") {
-                router.push({
-                  pathname: "/services/tireService",
-                  params: locationParams,
-                });
-              } else {
-                Alert.alert(
-                  "Confirm Request",
-                  `Do you want to request ${item.title} to your current location?`,
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Confirm",
-                      onPress: async () => {
-                        try {
-                          setLoading(true);
-                          await sendServiceRequest(
-                            item.title,
-                            { note: "Immediate assistance requested" },
-                            markerCoords,
-                            locationName,
-                          );
-                          router.push("/waitingScreen");
-                        } catch (error: any) {
-                          Alert.alert(
-                            "Error",
-                            error.message || "Failed to send request",
-                          );
-                        } finally {
-                          setLoading(false);
-                        }
-                      },
-                    },
-                  ],
-                );
-              }
-            }}
-            style={({ pressed }) => [
-              styles.card,
-              { backgroundColor: item.color },
-              pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] },
-            ]}
-          >
-            <View style={[styles.iconCircle, { backgroundColor: item.circle }]}>
-              <MaterialCommunityIcons
-                name={item.icon as any}
-                size={28}
-                color={item.iconColor}
-              />
+          <View style={styles.addressSection}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.addressLabel}>Your Current Address</Text>
+              <View style={styles.addressRow}>
+                <MaterialCommunityIcons
+                  name="map-marker-radius"
+                  size={26}
+                  color="green"
+                />
+                <Text style={styles.addressText} numberOfLines={1}>
+                  {locationName}
+                </Text>
+              </View>
             </View>
-            <Text style={styles.cardTitle}>{item.title}</Text>
-          </Pressable>
-        ))}
-      </View>
-    </ScrollView>
+            <Pressable style={styles.changeButton} onPress={handleAutoLocation}>
+              <Text style={styles.changeButtonText}>My Current Location</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        <View style={styles.servicesGrid}>
+          {services.map((item) => (
+            <Pressable
+              key={item.id}
+              onPress={async () => {
+                const locationParams = {
+                  lat: markerCoords.latitude.toString(),
+                  lng: markerCoords.longitude.toString(),
+                  address: locationName,
+                };
+
+                if (item.title === "Fuel Delivery") {
+                  router.push({
+                    pathname: "/services/fuelService",
+                    params: locationParams,
+                  });
+                } else if (item.title === "Tow Truck") {
+                  router.push({
+                    pathname: "/services/towService",
+                    params: locationParams,
+                  });
+                } else if (item.title === "Tire Repair or Replacement") {
+                  router.push({
+                    pathname: "/services/tireService",
+                    params: locationParams,
+                  });
+                } else {
+                  Alert.alert(
+                    "Confirm Request",
+                    `Do you want to request ${item.title} to your current location?`,
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Confirm",
+                        onPress: async () => {
+                          try {
+                            setLoading(true);
+                            await sendServiceRequest(
+                              item.title,
+                              { note: "Immediate assistance requested" },
+                              markerCoords,
+                              locationName,
+                            );
+                            router.push("/waitingScreen");
+                          } catch (error: any) {
+                            Alert.alert(
+                              "Error",
+                              error.message || "Failed to send request",
+                            );
+                          } finally {
+                            setLoading(false);
+                          }
+                        },
+                      },
+                    ],
+                  );
+                }
+              }}
+              style={({ pressed }) => [
+                styles.card,
+                { backgroundColor: item.color },
+                pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] },
+              ]}
+            >
+              <View
+                style={[styles.iconCircle, { backgroundColor: item.circle }]}
+              >
+                <MaterialCommunityIcons
+                  name={item.icon as any}
+                  size={28}
+                  color={item.iconColor}
+                />
+              </View>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </ScrollView>
+    </>
   );
 }
 

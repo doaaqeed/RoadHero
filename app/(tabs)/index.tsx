@@ -1,22 +1,15 @@
-import { Text, View } from "react-native";
-import React from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+  View,
+} from "react-native";
 
-function StatCard({
-  number,
-  label,
-}: {
-  number: string;
-  label: string;
-}) {
+function StatCard({ number, label }: { number: string; label: string }) {
   return (
     <View style={styles.statCard}>
       <View style={styles.orangeSquare} />
@@ -26,11 +19,7 @@ function StatCard({
   );
 }
 
-function QuickActionCard({
-  title,
-}: {
-  title: string;
-}) {
+function QuickActionCard({ title }: { title: string }) {
   return (
     <TouchableOpacity style={styles.quickCard} activeOpacity={0.85}>
       <View style={styles.orangeSquare} />
@@ -41,11 +30,6 @@ function QuickActionCard({
 
 export default function DashboardScreen() {
   return (
-    <View>
-      <Text>Home Page</Text>
-    </View>
-  );
-}
     <SafeAreaView style={styles.safe}>
       <ScrollView
         style={styles.container}
@@ -79,7 +63,10 @@ export default function DashboardScreen() {
             </View>
 
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.orangeButton} activeOpacity={0.85}>
+              <TouchableOpacity
+                style={styles.orangeButton}
+                activeOpacity={0.85}
+              >
                 <Text style={styles.orangeButtonText}>Track request</Text>
               </TouchableOpacity>
 
@@ -100,7 +87,9 @@ export default function DashboardScreen() {
             <View style={styles.quickHeaderRow}>
               <View>
                 <Text style={styles.sectionTitle}>Quick actions</Text>
-                <Text style={styles.sectionSubtitle}>The tiny command center</Text>
+                <Text style={styles.sectionSubtitle}>
+                  The tiny command center
+                </Text>
               </View>
 
               <View style={styles.tagBadge}>
@@ -121,139 +110,78 @@ export default function DashboardScreen() {
   );
 }
 
-const ORANGE = '#ff7a1a';
-const DARK = '#0f1728';
-const CARD_DARK = '#11192d';
-const SOFT = '#f4f4f5';
-const TEXT_MUTED = '#a3a3a3';
+const ORANGE = "#ff7a1a";
+const DARK = "#0f1728";
+const TEXT_MUTED = "#a3a3a3";
+const SOFT = "#f4f4f5";
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: '#ececec',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#ececec',
-  },
+  safe: { flex: 1, backgroundColor: "#ececec" },
+  container: { flex: 1 },
   topDarkHeader: {
-    backgroundColor: '#0b1220',
+    backgroundColor: "#0b1220",
     height: 110,
     borderBottomLeftRadius: 22,
     borderBottomRightRadius: 22,
     paddingHorizontal: 20,
-    paddingTop: 22,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    paddingTop: 45,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  mainContent: {
-    paddingHorizontal: 16,
-    marginTop: 14,
-  },
-  activeCard: {
-    backgroundColor: DARK,
-    borderRadius: 26,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  activeTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 14,
-  },
-  smallMuted: {
-    color: TEXT_MUTED,
-    fontSize: 13,
-    marginBottom: 4,
-  },
-  bigTitle: {
-    color: '#fff',
-    fontSize: 30,
-    fontWeight: '800',
-    marginBottom: 4,
-  },
+  headerTitle: { color: "#fff", fontSize: 20, fontWeight: "700" },
+  mainContent: { paddingHorizontal: 16, marginTop: 14 },
+  activeCard: { backgroundColor: DARK, borderRadius: 26, padding: 16 },
+  activeTopRow: { flexDirection: "row", justifyContent: "space-between" },
+  smallMuted: { color: TEXT_MUTED, fontSize: 13, marginBottom: 4 },
+  bigTitle: { color: "#fff", fontSize: 26, fontWeight: "800" },
   etaBox: {
-    backgroundColor: '#232c3f',
+    backgroundColor: "#232c3f",
     borderRadius: 18,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    alignSelf: 'flex-start',
-    minWidth: 86,
-    alignItems: 'center',
+    padding: 12,
+    alignItems: "center",
   },
-  etaLabel: {
-    color: TEXT_MUTED,
-    fontSize: 12,
-  },
-  etaValue: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: '800',
-    marginTop: 2,
-  },
+  etaLabel: { color: TEXT_MUTED, fontSize: 12 },
+  etaValue: { color: "#fff", fontSize: 18, fontWeight: "800" },
   infoPanel: {
-    backgroundColor: '#202837',
+    backgroundColor: "#202837",
     borderRadius: 18,
     padding: 14,
     marginTop: 16,
     gap: 8,
   },
-  infoText: {
-    color: '#d4d4d8',
-    fontSize: 14,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 14,
-  },
+  infoText: { color: "#d4d4d8", fontSize: 14 },
+  buttonRow: { flexDirection: "row", gap: 10, marginTop: 14 },
   orangeButton: {
     flex: 1,
     backgroundColor: ORANGE,
     borderRadius: 18,
     paddingVertical: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  orangeButtonText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 15,
-  },
+  orangeButtonText: { color: "#fff", fontWeight: "800" },
   whiteButton: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 18,
     paddingVertical: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  whiteButtonText: {
-    color: '#222',
-    fontWeight: '800',
-    fontSize: 15,
-  },
+  whiteButtonText: { color: "#222", fontWeight: "800" },
   statsGrid: {
     marginTop: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     rowGap: 12,
   },
   statCard: {
-    width: '48%',
+    width: "48%",
     backgroundColor: SOFT,
     borderRadius: 22,
     padding: 16,
     minHeight: 125,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   orangeSquare: {
     width: 18,
@@ -262,16 +190,8 @@ const styles = StyleSheet.create({
     backgroundColor: ORANGE,
     marginBottom: 12,
   },
-  statNumber: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: '#171717',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#8b8b8b',
-    marginTop: 4,
-  },
+  statNumber: { fontSize: 30, fontWeight: "800", color: "#171717" },
+  statLabel: { fontSize: 14, color: "#8b8b8b" },
   quickActionsSection: {
     backgroundColor: SOFT,
     borderRadius: 24,
@@ -279,51 +199,32 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   quickHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 14,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#171717',
-  },
-  sectionSubtitle: {
-    fontSize: 13,
-    color: '#8b8b8b',
-    marginTop: 4,
-  },
+  sectionTitle: { fontSize: 22, fontWeight: "800", color: "#171717" },
+  sectionSubtitle: { fontSize: 13, color: "#8b8b8b" },
   tagBadge: {
-    backgroundColor: '#ffe4cf',
+    backgroundColor: "#ffe4cf",
     paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 999,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
-  tagBadgeText: {
-    color: ORANGE,
-    fontWeight: '700',
-    fontSize: 12,
-  },
+  tagBadgeText: { color: ORANGE, fontWeight: "700", fontSize: 12 },
   quickGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     rowGap: 12,
   },
   quickCard: {
-    width: '48%',
-    backgroundColor: '#ebebee',
+    width: "48%",
+    backgroundColor: "#ebebee",
     borderRadius: 18,
     padding: 14,
-    minHeight: 110,
-    justifyContent: 'space-between',
+    minHeight: 100,
+    justifyContent: "space-between",
   },
-  quickCardText: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#171717',
-    width: '75%',
-    lineHeight: 22,
-  },
+  quickCardText: { fontSize: 16, fontWeight: "800", color: "#171717" },
 });
