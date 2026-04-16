@@ -1,4 +1,5 @@
 import { HelloWave } from "@/components/hello-wave";
+import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { router } from "expo-router";
@@ -172,22 +173,55 @@ export default function HomeScreen() {
         {services.map((item) => (
           <Pressable
             key={item.id}
-            onPress={() => {
-              if (item.title === "Fuel Delivery")
-                router.push("/services/fuelService");
-              else if (item.title === "Tow Truck")
-                router.push("/services/towService");
-              else if (item.title === "Tire Repair or Replacement")
-                router.push("/services/tireService");
-              else {
+            onPress={async () => {
+              const locationParams = {
+                lat: markerCoords.latitude.toString(),
+                lng: markerCoords.longitude.toString(),
+                address: locationName,
+              };
+
+              if (item.title === "Fuel Delivery") {
+                router.push({
+                  pathname: "/services/fuelService",
+                  params: locationParams,
+                });
+              } else if (item.title === "Tow Truck") {
+                router.push({
+                  pathname: "/services/towService",
+                  params: locationParams,
+                });
+              } else if (item.title === "Tire Repair or Replacement") {
+                router.push({
+                  pathname: "/services/tireService",
+                  params: locationParams,
+                });
+              } else {
                 Alert.alert(
                   "Confirm Request",
-                  `Request ${item.title} to:\n${locationName}?`,
+                  `Do you want to request ${item.title} to your current location?`,
                   [
                     { text: "Cancel", style: "cancel" },
                     {
                       text: "Confirm",
-                      onPress: () => router.push("/waitingScreen"),
+                      onPress: async () => {
+                        try {
+                          setLoading(true);
+                          await sendServiceRequest(
+                            item.title,
+                            { note: "Immediate assistance requested" },
+                            markerCoords,
+                            locationName,
+                          );
+                          router.push("/waitingScreen");
+                        } catch (error: any) {
+                          Alert.alert(
+                            "Error",
+                            error.message || "Failed to send request",
+                          );
+                        } finally {
+                          setLoading(false);
+                        }
+                      },
                     },
                   ],
                 );
@@ -215,11 +249,27 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: "white", flex: 1 },
-  container: { marginTop: 60, paddingHorizontal: 20 },
-  titleContainer: { flexDirection: "row", alignItems: "center" },
-  title: { fontSize: 25, fontWeight: "bold" },
-  smallTitle: { color: "gray", fontSize: 18, marginTop: 5 },
+  screen: {
+    backgroundColor: "white",
+    flex: 1,
+  },
+  container: {
+    marginTop: 60,
+    paddingHorizontal: 20,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: "bold",
+  },
+  smallTitle: {
+    color: "gray",
+    fontSize: 18,
+    marginTop: 5,
+  },
   mapContainer: {
     marginTop: 20,
     height: 180,

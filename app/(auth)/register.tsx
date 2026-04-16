@@ -5,7 +5,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import Checkbox from "expo-checkbox";
-import { Link, useRouter } from "expo-router";
+import { Link, Stack, useRouter } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
@@ -93,303 +93,306 @@ export default function Register() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ backgroundColor: "#F5F5F5" }}>
-      <View style={styles.center}>
-        <Text style={[styles.title]}> Register</Text>
-      </View>
-
-      <View style={[styles.firstSection, styles.mB23]}>
-        <Text style={[styles.startText, styles.mB16]}>Getting Started</Text>
-        <Text style={styles.paragraph}>Seems you are new here,</Text>
-        <Text style={styles.paragraph}>Let’s set up your account.</Text>
-      </View>
-
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <View style={[styles.center]}>
-          <Controller
-            control={control}
-            name="fullName"
-            rules={{
-              required: "Full name is required",
-              minLength: {
-                value: 3,
-                message: "Name must be at least 3 characters",
-              },
-            }}
-            render={({
-              field: { onChange, value, onBlur },
-              fieldState: { error, isTouched },
-            }) => (
-              <>
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Full Name"
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
-              </>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="email"
-            rules={{
-              required: "Email is required",
-              pattern: {
-                value: /^\S+@\S+\.\S+$/,
-                message: "Invalid email format",
-              },
-            }}
-            render={({
-              field: { onChange, value, onBlur },
-              fieldState: { error, isTouched },
-            }) => (
-              <>
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Email Address"
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
-              </>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="address"
-            rules={{ required: "Address is required" }}
-            render={({
-              field: { onChange, value, onBlur },
-              fieldState: { error, isTouched },
-            }) => (
-              <>
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Current Address"
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
-              </>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="state"
-            rules={{
-              required: "State is required",
-            }}
-            render={({
-              field: { onChange, value, onBlur },
-              fieldState: { error, isTouched },
-            }) => (
-              <>
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="State"
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
-              </>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="password"
-            rules={{
-              required: "Password is required",
-              minLength: {
-                value: 6,
-                message: "Password must be at least 6 characters",
-              },
-            }}
-            render={({
-              field: { onChange, value, onBlur },
-              fieldState: { error, isTouched },
-            }) => (
-              <>
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Password"
-                    secureTextEntry
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
-              </>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="confirmPassword"
-            rules={{
-              required: "Confirm Password is required",
-              validate: (value) =>
-                value === passwordVar || "Passwords do not match",
-            }}
-            render={({
-              field: { onChange, value, onBlur },
-              fieldState: { error, isTouched },
-            }) => (
-              <>
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Confirm Password"
-                    secureTextEntry
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
-              </>
-            )}
-          />
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <ScrollView contentContainerStyle={{ backgroundColor: "#F5F5F5" }}>
+        <View style={styles.center}>
+          <Text style={[styles.title]}> Register</Text>
         </View>
-      </KeyboardAvoidingView>
 
-      <View>
-        <View style={[styles.terms, styles.firstSection]}>
-          <Checkbox
-            value={checked}
-            onValueChange={setChecked}
-            style={styles.CheckboxStyle}
-          />
-          <View>
-            <Text style={styles.padLeft_9}>
-              By creating an account, you agree to our
-            </Text>
-            <Text style={[styles.padLeft_9, styles.main_color]}>
-              Term and Conditions
+        <View style={[styles.firstSection, styles.mB23]}>
+          <Text style={[styles.startText, styles.mB16]}>Getting Started</Text>
+          <Text style={styles.paragraph}>Seems you are new here,</Text>
+          <Text style={styles.paragraph}>Let’s set up your account.</Text>
+        </View>
+
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={[styles.center]}>
+            <Controller
+              control={control}
+              name="fullName"
+              rules={{
+                required: "Full name is required",
+                minLength: {
+                  value: 3,
+                  message: "Name must be at least 3 characters",
+                },
+              }}
+              render={({
+                field: { onChange, value, onBlur },
+                fieldState: { error, isTouched },
+              }) => (
+                <>
+                  <View style={{ marginBottom: 30 }}>
+                    <TextInput
+                      placeholder="Full Name"
+                      value={value}
+                      onChangeText={onChange}
+                      style={[
+                        styles.input,
+                        {
+                          borderColor: error
+                            ? "red"
+                            : isTouched
+                              ? "green"
+                              : "#ccc",
+                        },
+                      ]}
+                      onBlur={onBlur}
+                      placeholderTextColor="#706e6e"
+                    />
+                    {error && (
+                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                    )}
+                  </View>
+                </>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="email"
+              rules={{
+                required: "Email is required",
+                pattern: {
+                  value: /^\S+@\S+\.\S+$/,
+                  message: "Invalid email format",
+                },
+              }}
+              render={({
+                field: { onChange, value, onBlur },
+                fieldState: { error, isTouched },
+              }) => (
+                <>
+                  <View style={{ marginBottom: 30 }}>
+                    <TextInput
+                      placeholder="Email Address"
+                      value={value}
+                      onChangeText={onChange}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      style={[
+                        styles.input,
+                        {
+                          borderColor: error
+                            ? "red"
+                            : isTouched
+                              ? "green"
+                              : "#ccc",
+                        },
+                      ]}
+                      onBlur={onBlur}
+                      placeholderTextColor="#706e6e"
+                    />
+                    {error && (
+                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                    )}
+                  </View>
+                </>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="address"
+              rules={{ required: "Address is required" }}
+              render={({
+                field: { onChange, value, onBlur },
+                fieldState: { error, isTouched },
+              }) => (
+                <>
+                  <View style={{ marginBottom: 30 }}>
+                    <TextInput
+                      placeholder="Current Address"
+                      value={value}
+                      onChangeText={onChange}
+                      style={[
+                        styles.input,
+                        {
+                          borderColor: error
+                            ? "red"
+                            : isTouched
+                              ? "green"
+                              : "#ccc",
+                        },
+                      ]}
+                      onBlur={onBlur}
+                      placeholderTextColor="#706e6e"
+                    />
+                    {error && (
+                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                    )}
+                  </View>
+                </>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="state"
+              rules={{
+                required: "State is required",
+              }}
+              render={({
+                field: { onChange, value, onBlur },
+                fieldState: { error, isTouched },
+              }) => (
+                <>
+                  <View style={{ marginBottom: 30 }}>
+                    <TextInput
+                      placeholder="State"
+                      value={value}
+                      onChangeText={onChange}
+                      style={[
+                        styles.input,
+                        {
+                          borderColor: error
+                            ? "red"
+                            : isTouched
+                              ? "green"
+                              : "#ccc",
+                        },
+                      ]}
+                      onBlur={onBlur}
+                      placeholderTextColor="#706e6e"
+                    />
+                    {error && (
+                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                    )}
+                  </View>
+                </>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="password"
+              rules={{
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              }}
+              render={({
+                field: { onChange, value, onBlur },
+                fieldState: { error, isTouched },
+              }) => (
+                <>
+                  <View style={{ marginBottom: 30 }}>
+                    <TextInput
+                      placeholder="Password"
+                      secureTextEntry
+                      value={value}
+                      onChangeText={onChange}
+                      style={[
+                        styles.input,
+                        {
+                          borderColor: error
+                            ? "red"
+                            : isTouched
+                              ? "green"
+                              : "#ccc",
+                        },
+                      ]}
+                      onBlur={onBlur}
+                      placeholderTextColor="#706e6e"
+                    />
+                    {error && (
+                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                    )}
+                  </View>
+                </>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="confirmPassword"
+              rules={{
+                required: "Confirm Password is required",
+                validate: (value) =>
+                  value === passwordVar || "Passwords do not match",
+              }}
+              render={({
+                field: { onChange, value, onBlur },
+                fieldState: { error, isTouched },
+              }) => (
+                <>
+                  <View style={{ marginBottom: 30 }}>
+                    <TextInput
+                      placeholder="Confirm Password"
+                      secureTextEntry
+                      value={value}
+                      onChangeText={onChange}
+                      style={[
+                        styles.input,
+                        {
+                          borderColor: error
+                            ? "red"
+                            : isTouched
+                              ? "green"
+                              : "#ccc",
+                        },
+                      ]}
+                      onBlur={onBlur}
+                      placeholderTextColor="#706e6e"
+                    />
+                    {error && (
+                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                    )}
+                  </View>
+                </>
+              )}
+            />
+          </View>
+        </KeyboardAvoidingView>
+
+        <View>
+          <View style={[styles.terms, styles.firstSection]}>
+            <Checkbox
+              value={checked}
+              onValueChange={setChecked}
+              style={styles.CheckboxStyle}
+            />
+            <View>
+              <Text style={styles.padLeft_9}>
+                By creating an account, you agree to our
+              </Text>
+              <Text style={[styles.padLeft_9, styles.main_color]}>
+                Term and Conditions
+              </Text>
+            </View>
+          </View>
+          <View style={[styles.center, styles.mT_30]}>
+            <Pressable
+              onPress={handleSubmit(onSubmit)}
+              style={styles.ContinuePress}
+            >
+              <Text style={[styles.ContinueText]}>Continue</Text>
+            </Pressable>
+          </View>
+          <View style={[styles.center, styles.mB28, styles.mT_1]}>
+            <Text>
+              Already have an account ?
+              <Link href="/login" style={styles.loginLink}>
+                Login
+              </Link>
             </Text>
           </View>
         </View>
-        <View style={[styles.center, styles.mT_30]}>
-          <Pressable
-            onPress={handleSubmit(onSubmit)}
-            style={styles.ContinuePress}
-          >
-            <Text style={[styles.ContinueText]}>Continue</Text>
-          </Pressable>
-        </View>
-        <View style={[styles.center, styles.mB28, styles.mT_1]}>
-          <Text>
-            Already have an account ?
-            <Link href="/login" style={styles.loginLink}>
-              Login
-            </Link>
-          </Text>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 const styles = StyleSheet.create({
   title: {
     fontWeight: "600",
     fontSize: RFValue(18),
-    paddingTop: 20,
+    paddingTop: 60,
     fontFamily: "Inter_600SemiBold",
   },
   startText: {

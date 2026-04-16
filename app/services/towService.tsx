@@ -1,11 +1,59 @@
+import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function TowService() {
   const [selected, setSelected] = useState<string | null>(null);
-  const isDisabled = !selected;
+  const [loading, setLoading] = useState(false);
+
+  const params = useLocalSearchParams();
+  const { lat, lng, address } = params;
+
+  const isDisabled = !selected || loading;
+
+  const handleConfirm = async () => {
+    if (!selected) return;
+
+    if (!lat || !lng) {
+      Alert.alert(
+        "error",
+        "Location data is unavailable, please go back and try again.",
+      );
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await sendServiceRequest(
+        "Tow Truck",
+        { vehicleSize: selected },
+        {
+          latitude: parseFloat(lat as string),
+          longitude: parseFloat(lng as string),
+        },
+        (address as string) || "Nablus",
+      );
+
+      router.push("/waitingScreen");
+    } catch (error: any) {
+      Alert.alert(
+        "Request failed",
+        error.message || "An error occurred while submitting the request.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.screen}>
@@ -77,13 +125,22 @@ export default function TowService() {
           styles.button,
           { backgroundColor: isDisabled ? "#ccc" : "#ff6b1a" },
         ]}
-        onPress={() => router.push("/waitingScreen")}
+        onPress={handleConfirm}
       >
-        <Text
-          style={{ color: "white", textAlign: "center", fontWeight: "bold" }}
-        >
-          Confirm
-        </Text>
+        {loading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text
+            style={{
+              color: "white",
+              textAlign: "center",
+              fontWeight: "bold",
+              fontSize: 16,
+            }}
+          >
+            Confirm
+          </Text>
+        )}
       </Pressable>
     </View>
   );
@@ -94,20 +151,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
-
   container: {
-    marginTop: 60,
+    marginTop: 120,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
   },
-
   cardsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 20,
   },
-
   card: {
     width: "45%",
     borderRadius: 20,
@@ -115,25 +169,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#ddd",
+    backgroundColor: "#fff",
   },
-
   selectedCard: {
     borderColor: "#ff6b1a",
     borderWidth: 2,
+    backgroundColor: "#fff7f2",
   },
-
   image: {
     width: 100,
     height: 80,
   },
-
   button: {
     position: "absolute",
     bottom: 30,
     alignSelf: "center",
-    backgroundColor: "#ff6b1a",
     width: "80%",
-    paddingVertical: 15,
+    paddingVertical: 18,
     borderRadius: 15,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
   },
 });

@@ -13,7 +13,13 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack>
+      <Stack
+        screenOptions={{
+          headerTitle: "",
+          headerTransparent: true,
+          headerTintColor: "#000000",
+        }}
+      >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="modal"
