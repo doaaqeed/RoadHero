@@ -1,11 +1,56 @@
+import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function FuelService() {
   const [count, setCount] = useState(0);
   const [fuel, setFuel] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const params = useLocalSearchParams();
+  const { lat, lng, address } = params;
+
+  const handleConfirm = async () => {
+    if (!lat || !lng) {
+      Alert.alert(
+        "Error",
+        "Location data is missing. Please go back and try again.",
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await sendServiceRequest(
+        "Fuel Delivery",
+        {
+          fuelType: fuel,
+          quantity: count,
+        },
+        {
+          latitude: parseFloat(lat as string),
+          longitude: parseFloat(lng as string),
+        },
+        (address as string) || "Unknown Location",
+      );
+
+      router.push("/waitingScreen");
+    } catch (error: any) {
+      Alert.alert("Request Failed", error.message || "Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <ScrollView
@@ -17,11 +62,13 @@ export default function FuelService() {
           <MaterialCommunityIcons name="gas-station" size={40} color="green" />
           <Text style={{ fontSize: 35, fontWeight: "bold" }}>Fuel</Text>
         </View>
+
         <Text
           style={{ fontSize: 20, color: "grey", marginLeft: 30, marginTop: 20 }}
         >
           Choose fuel type as your need
         </Text>
+
         <View style={styles.cards}>
           <Pressable
             onPress={() => setFuel("gasoline")}
@@ -50,6 +97,7 @@ export default function FuelService() {
             <Text style={{ fontWeight: "bold" }}>Diesel</Text>
           </Pressable>
         </View>
+
         <Text
           style={{
             fontSize: 20,
@@ -61,17 +109,9 @@ export default function FuelService() {
         >
           Choose the quantity you need
         </Text>
+
         <View style={styles.counter}>
-          <View
-            style={{
-              backgroundColor: "#f2f0f0de",
-              borderRadius: 30,
-              width: 60,
-              height: 60,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
+          <View style={styles.iconCircle}>
             <MaterialCommunityIcons name="fuel" size={40} color="green" />
           </View>
           <View style={{ marginLeft: 10, marginTop: 10 }}>
@@ -80,78 +120,60 @@ export default function FuelService() {
             </Text>
             <Text style={{ color: "grey", fontSize: 15 }}>in liter</Text>
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-              marginTop: 10,
-              marginLeft: 25,
-              gap: 25,
-            }}
-          >
+          <View style={styles.counterControls}>
             <Pressable
               onPress={() => setCount(Math.max(0, count - 1))}
-              style={{
-                backgroundColor: "#f5f3f3",
-                borderRadius: 30,
-                width: 40,
-                height: 40,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
+              style={styles.counterBtn}
             >
               <Text style={{ fontSize: 20 }}>-</Text>
             </Pressable>
-            <Pressable style={{ marginTop: 7 }}>
-              <Text style={{ fontSize: 20 }}>{count}</Text>
-            </Pressable>
+            <Text style={{ fontSize: 20, marginTop: 7 }}>{count}</Text>
             <Pressable
               onPress={() => setCount(count + 1)}
-              style={{
-                backgroundColor: "#f5f3f3",
-                borderRadius: 30,
-                width: 40,
-                height: 40,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
+              style={styles.counterBtn}
             >
               <Text style={{ fontSize: 20 }}>+</Text>
             </Pressable>
           </View>
         </View>
+
         <Pressable
-          disabled={!fuel || count === 0}
+          disabled={!fuel || count === 0 || isSubmitting}
           style={[
             styles.requestButton,
             {
-              backgroundColor: fuel && count > 0 ? "green" : "#b6b3b3",
+              backgroundColor:
+                fuel && count > 0 && !isSubmitting ? "green" : "#b6b3b3",
             },
           ]}
-          onPress={() => router.push("/waitingScreen")}
+          onPress={handleConfirm}
         >
-          <Text
-            style={{ color: "white", textAlign: "center", fontWeight: "600" }}
-          >
-            Confirm
-          </Text>
+          {isSubmitting ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text
+              style={{ color: "white", textAlign: "center", fontWeight: "600" }}
+            >
+              Confirm
+            </Text>
+          )}
         </Pressable>
       </View>
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: "white",
   },
-
   container: {
     flexDirection: "row",
-    marginTop: 60,
+    marginTop: 140,
     alignItems: "center",
     gap: 15,
     marginLeft: 25,
   },
-
   cards: {
     flexDirection: "row",
     justifyContent: "center",
@@ -159,7 +181,6 @@ const styles = StyleSheet.create({
     gap: 20,
     flexWrap: "wrap",
   },
-
   card: {
     width: 140,
     height: 120,
@@ -169,7 +190,6 @@ const styles = StyleSheet.create({
     borderColor: "#bbb5b5",
     borderRadius: 20,
   },
-
   counter: {
     flexDirection: "row",
     alignItems: "center",
@@ -180,7 +200,28 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
   },
-
+  iconCircle: {
+    backgroundColor: "#f2f0f0de",
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  counterControls: {
+    flexDirection: "row",
+    marginTop: 10,
+    marginLeft: 25,
+    gap: 25,
+  },
+  counterBtn: {
+    backgroundColor: "#f5f3f3",
+    borderRadius: 30,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   requestButton: {
     marginLeft: 20,
     marginRight: 20,
