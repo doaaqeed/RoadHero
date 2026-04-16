@@ -191,17 +191,17 @@ export default function HomeScreen() {
 
                 if (item.title === "Fuel Delivery") {
                   router.push({
-                    pathname: "/services/fuelService",
+                    pathname: "/user/fuelService",
                     params: locationParams,
                   });
                 } else if (item.title === "Tow Truck") {
                   router.push({
-                    pathname: "/services/towService",
+                    pathname: "/user/towService",
                     params: locationParams,
                   });
                 } else if (item.title === "Tire Repair or Replacement") {
                   router.push({
-                    pathname: "/services/tireService",
+                    pathname: "/user/tireService",
                     params: locationParams,
                   });
                 } else {
