@@ -34,7 +34,7 @@ export default function TowService() {
 
     setLoading(true);
     try {
-      await sendServiceRequest(
+      const requestId = await sendServiceRequest(
         "Tow Truck",
         { vehicleSize: selected },
         {
@@ -44,7 +44,10 @@ export default function TowService() {
         (address as string) || "Nablus",
       );
 
-      router.push("/waitingScreen");
+      router.push({
+        pathname: "/waitingScreen",
+        params: { requestId },
+      });
     } catch (error: any) {
       Alert.alert(
         "Request failed",

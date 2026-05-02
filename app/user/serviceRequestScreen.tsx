@@ -160,7 +160,7 @@ export default function HomeScreen() {
 
           <View style={styles.addressSection}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.addressLabel}>Your Current Address</Text>
+              <Text style={styles.addressLabel}>Your Address</Text>
               <View style={styles.addressRow}>
                 <MaterialCommunityIcons
                   name="map-marker-radius"
@@ -215,13 +215,16 @@ export default function HomeScreen() {
                         onPress: async () => {
                           try {
                             setLoading(true);
-                            await sendServiceRequest(
+                            const requestId = await sendServiceRequest(
                               item.title,
                               { note: "Immediate assistance requested" },
                               markerCoords,
                               locationName,
                             );
-                            router.push("/waitingScreen");
+                            router.push({
+                              pathname: "/waitingScreen",
+                              params: { requestId },
+                            });
                           } catch (error: any) {
                             Alert.alert(
                               "Error",

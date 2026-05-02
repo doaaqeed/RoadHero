@@ -31,7 +31,7 @@ export default function FuelService() {
 
     setIsSubmitting(true);
     try {
-      await sendServiceRequest(
+      const requestId = await sendServiceRequest(
         "Fuel Delivery",
         {
           fuelType: fuel,
@@ -44,7 +44,10 @@ export default function FuelService() {
         (address as string) || "Unknown Location",
       );
 
-      router.push("/waitingScreen");
+      router.push({
+        pathname: "/waitingScreen",
+        params: { requestId },
+      });
     } catch (error: any) {
       Alert.alert("Request Failed", error.message || "Something went wrong");
     } finally {

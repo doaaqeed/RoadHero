@@ -43,7 +43,7 @@ export default function TireService() {
 
     setIsSubmitting(true);
     try {
-      await sendServiceRequest(
+      const requestId = await sendServiceRequest(
         "Tire Service",
         {
           vehicleModel: data.vehicle,
@@ -57,7 +57,10 @@ export default function TireService() {
         (address as string) || "Unknown Location",
       );
 
-      router.push("/waitingScreen");
+      router.push({
+        pathname: "/waitingScreen",
+        params: { requestId },
+      });
     } catch (error: any) {
       Alert.alert("Request Failed", error.message || "Something went wrong");
     } finally {
