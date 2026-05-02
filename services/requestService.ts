@@ -5,21 +5,20 @@ import { db } from "./firebaseConfig";
 export const sendServiceRequest = async (
   serviceType: string,
   specificDetails: object,
-  location: any,
+  location: { latitude: number; longitude: number },
   address: string,
 ) => {
   const auth = getAuth();
-  const user = auth.currentUser; // هذا يجلب المستخدم المسجل حالياً
+  const user = auth.currentUser;
 
   if (!user) {
-    throw new Error("يجب تسجيل الدخول أولاً");
+    throw new Error("should login first");
   }
 
   try {
-    // نستخدم user.uid وهو المعرف الفريد الذي يوفره فايربيز تلقائياً
     const docRef = await addDoc(collection(db, "requests"), {
-      userUID: user.uid, // هذا هو الرابط بين الطلب وبين المستخدم (ردا)
-      userEmail: user.email, // إضافي: لتسهيل البحث بالإيميل إذا أردت
+      userUID: user.uid,
+      userEmail: user.email,
       serviceType: serviceType,
       status: "pending",
       address: address,

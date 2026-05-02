@@ -1,12 +1,96 @@
-import React from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import {
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+  useNavigation,
+} from "expo-router";
+import { doc, updateDoc } from "firebase/firestore"; // Use updateDoc instead of deleteDoc
+import React, { useCallback, useEffect } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useBroadcastTimer } from "../hooks/useBroadcastTimer";
+import { db } from "../services/firebaseConfig";
 
 export default function WaitingScreen() {
+  const { requestId } = useLocalSearchParams();
+  const { timeLeft } = useBroadcastTimer(requestId);
+  const navigation = useNavigation();
+
+  const handleCancelRequest = async () => {
+    if (!requestId || Array.isArray(requestId)) return;
+
+    try {
+      // Update the status to 'canceled' in Firestore
+      await updateDoc(doc(db, "requests", requestId), {
+        status: "canceled",
+        canceledAt: new Date().toISOString(), // Good practice for your records
+      });
+
+      router.replace("/user/serviceRequestScreen");
+    } catch (error) {
+      Alert.alert("Error", "Could not cancel the request. Please try again.");
+    }
+  };
+
+  const showCancelAlert = () => {
+    Alert.alert(
+      "Cancel Request?",
+      "Are you sure you want to stop searching for help?",
+      [
+        { text: "No, Keep Waiting", style: "cancel" },
+        {
+          text: "Yes, Cancel",
+          style: "destructive",
+          onPress: handleCancelRequest,
+        },
+      ],
+    );
+  };
+  // 3. iOS Fix: Disable Swipe and Intercept Header Back
+  useEffect(() => {
+    navigation.setOptions({
+      gestureEnabled: false, // Disables the iPhone swipe-to-back gesture
+      headerLeft: () => (
+        <TouchableOpacity onPress={showCancelAlert} style={{ marginLeft: 10 }}>
+          <Text style={{ fontSize: 16 }}>Back</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  // 4. Android Fix: Physical Back Button
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        showCancelAlert();
+        return true; // Prevents default behavior
+      };
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+      return () => subscription.remove();
+    }, [requestId]),
+  );
+
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" />
+      <Text style={styles.title}>Searching for RoadHero providers...</Text>
+      <ActivityIndicator size="large" color="black" />
+      <View style={styles.timerBox}>
+        <Text style={styles.timerText}>{timeLeft}s</Text>
+      </View>
 
-      <Text style={styles.text}>Searching for nearby providers...</Text>
+      <TouchableOpacity style={styles.cancelBtn} onPress={showCancelAlert}>
+        <Text style={styles.cancelBtnText}>Cancel Request</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -16,12 +100,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "#fff",
   },
-
-  text: {
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
     marginTop: 20,
-    fontSize: 14,
+    marginBottom: 40,
     color: "#333",
+  },
+  timerBox: {
+    marginTop: 40,
+    padding: 20,
+    borderRadius: 50,
+    backgroundColor: "#f8f9fa",
+  },
+  timerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "black",
+  },
+  cancelBtn: { marginTop: 60, padding: 10 },
+  cancelBtnText: {
+    color: "#e74c3c",
+    fontSize: 16,
+    textDecorationLine: "underline",
   },
 });
