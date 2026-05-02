@@ -84,12 +84,8 @@ export default function Register() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={{ backgroundColor: "#F5F5F5" }}>
-        <View style={styles.center}>
-          <Text style={[styles.title]}> Register</Text>
-        </View>
-
         <View style={[styles.firstSection, styles.mB23]}>
-          <Text style={[styles.startText, styles.mB16]}>Getting Started</Text>
+          <Text style={[styles.startText, styles.mB16,styles.mT_50]}>Getting Started</Text>
           <Text style={styles.paragraph}>Seems you are new here,</Text>
           <Text style={styles.paragraph}>Let’s set up your account.</Text>
         </View>
@@ -348,7 +344,7 @@ export default function Register() {
               onPress={handleSubmit(onSubmit)}
               style={styles.ContinuePress}
             >
-              <Text style={[styles.ContinueText]}>Continue</Text>
+              <Text style={[styles.ContinueText]}>Register</Text>
             </Pressable>
           </View>
           <View style={[styles.center, styles.mB28, styles.mT_1]}>
@@ -409,6 +405,9 @@ const styles = StyleSheet.create({
   },
   mT_30: {
     marginTop: 30,
+  },
+  mT_50: {
+    marginTop: 50,
   },
   padLeft_9: {
     paddingLeft: RFValue(9),
