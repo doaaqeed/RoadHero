@@ -1,4 +1,7 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../services/firebaseConfig';
 import {
   SafeAreaView,
   ScrollView,
@@ -146,7 +149,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ececec',
   },
   topDarkHeader: {
-    backgroundColor: '#0b1220',
+    backgroundColor: '#EA580C',
     height: 110,
     borderBottomLeftRadius: 22,
     borderBottomRightRadius: 22,
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: {
+  avatarText: { 
     color: '#fff',
     fontWeight: '800',
     fontSize: 28,
