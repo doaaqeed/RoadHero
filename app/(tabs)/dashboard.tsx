@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { router } from "expo-router";
 import {
   View,
   Text,
@@ -89,8 +90,12 @@ export default function Dashboard() {
               pressedCard === title && styles.cardPressed,
             ]}
             activeOpacity={0.9}
-            onPressIn={() => setPressedCard(title)}
-            onPressOut={() => setPressedCard(null)}
+            onPress={() =>
+  router.push({
+    pathname: "/user/service-requests" as any,
+    params: { serviceTitle: title },
+  })
+}
           >
             <View style={[styles.iconBox, { backgroundColor: bgColor }]}>
               <Icon size={24} color={iconColor} strokeWidth={2.4} />
@@ -197,7 +202,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: "#cdf7c2ff",
+    backgroundColor: "#e3f7deff",
     padding: 18,
     borderRadius: 18,
     marginTop: 10,
@@ -207,7 +212,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 10,
-    backgroundColor: "#f97316",
+    backgroundColor: "#6ad457ff",
     alignItems: "center",
     justifyContent: "center",
   },
