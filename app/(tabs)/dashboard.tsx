@@ -96,10 +96,7 @@ export default function Dashboard() {
               <Icon size={24} color={iconColor} strokeWidth={2.4} />
             </View>
 
-            <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>{title}</Text>
-              <Text style={styles.cardSubtitle}>{subtitle}</Text>
-            </View>
+           <Text style={styles.cardTitle}>{title}</Text>
           </TouchableOpacity>
         ))}
 
@@ -113,7 +110,7 @@ export default function Dashboard() {
           onPressOut={() => setPressedCard(null)}
         >
           <View style={styles.completedIcon}>
-            <CheckSquare size={18} color="#fff" strokeWidth={2.6} />
+            <CheckSquare size={18} color="#ffffffff" strokeWidth={2.6} />
           </View>
 
           <View>
@@ -200,7 +197,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#cdf7c2ff",
     padding: 18,
     borderRadius: 18,
     marginTop: 10,
