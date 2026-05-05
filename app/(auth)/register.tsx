@@ -21,6 +21,8 @@ import {
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
+import { useLocalSearchParams } from "expo-router";
+
 
 export default function Register() {
   const [loaded] = useFonts({
@@ -30,6 +32,7 @@ export default function Register() {
 
   const [checked, setChecked] = useState(false);
   const router = useRouter();
+  const { state } = useLocalSearchParams();
 
   const onSubmit = async (data) => {
     if (!checked) {
@@ -49,15 +52,21 @@ export default function Register() {
         fullName: data.fullName,
         email: data.email,
         address: data.address,
-        state: data.state,
+        state:state,
+        
       });
 
-      const userState = data.state?.toLowerCase().trim();
-      if (userState === "user") {
+       
+      
+      if (state === "needService") {
         router.replace("/user/serviceRequestScreen");
-      } else if (userState === "provider") {
+      } else if (state === "provideService") {
         router.replace("/(tabs)");
       }
+
+      
+
+
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         alert("This email is already registered.");
@@ -208,40 +217,7 @@ export default function Register() {
               )}
             />
 
-            <Controller
-              control={control}
-              name="state"
-              rules={{
-                required: "State is required",
-              }}
-              render={({
-                field: { onChange, value, onBlur },
-                fieldState: { error, isTouched },
-              }) => (
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="State"
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
-              )}
-            />
+           
 
             <Controller
               control={control}
