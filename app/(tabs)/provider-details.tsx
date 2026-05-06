@@ -1,4 +1,7 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../services/firebaseConfig';
 import {
   SafeAreaView,
   ScrollView,
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: {
+  avatarText: { 
     color: '#fff',
     fontWeight: '800',
     fontSize: 28,
