@@ -58,26 +58,26 @@ export default function RequestProgressScreen() {
           <View style={styles.liveCard}>
             <View style={styles.liveRowTop}>
               <View>
-                <Text style={styles.smallMuted}>Current status</Text>
-                <Text style={styles.liveTitle}>Provider is on the way</Text>
+                <Text style={[styles.smallMuted, { color: '#000' }]}>Current status</Text>
+                <Text style={[styles.liveTitle, { color: '#000' }]}>Provider is on the way</Text>
               </View>
-
-              <View style={styles.liveBadge}>
-                <Text style={styles.liveBadgeText}>Live</Text>
-              </View>
+                
+              
             </View>
 
             <View style={styles.progressBox}>
               <View style={styles.progressHeader}>
-                <Text style={styles.progressLabel}>Progress</Text>
-                <Text style={styles.progressPercent}>60%</Text>
+                <Text style={[styles.progressLabel, { color: '#000' }]}>progress</Text>
+                <Text style={styles.progressPercent}></Text>
               </View>
 
               <View style={styles.progressTrack}>
-                <View style={styles.progressFill} />
+                <View style={[styles.progressFill, { backgroundColor: '#fff' }]} />
               </View>
 
-              <Text style={styles.locationText}>📍 King George St, Jerusalem</Text>
+              <Text style={styles.locationText}>
+                
+              </Text>
             </View>
           </View>
 
@@ -90,9 +90,9 @@ export default function RequestProgressScreen() {
                 </Text>
               </View>
 
-              <View style={styles.ticketBadge}>
-                <Text style={styles.ticketText}>#2084</Text>
-              </View>
+             
+               
+             
             </View>
 
             <View style={{ marginTop: 18 }}>
@@ -104,40 +104,14 @@ export default function RequestProgressScreen() {
             </View>
           </View>
 
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryTopRow}>
-              <View>
-                <Text style={styles.sectionTitle}>Provider summary</Text>
-                <Text style={styles.sectionSubtitle}>Useful bits, no fluff confetti</Text>
-              </View>
+          
+           
 
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>AN</Text>
-              </View>
-            </View>
-
-            <View style={styles.summaryGrid}>
-              <View style={styles.summaryBox}>
-                <Text style={styles.summaryBoxLabel}>Name</Text>
-                <Text style={styles.summaryBoxValue}>Ahmad</Text>
-              </View>
-
-              <View style={styles.summaryBox}>
-                <Text style={styles.summaryBoxLabel}>ETA</Text>
-                <Text style={styles.summaryBoxValue}>12 min</Text>
-              </View>
-
-              <View style={styles.summaryBox}>
-                <Text style={styles.summaryBoxLabel}>Vehicle</Text>
-                <Text style={styles.summaryBoxValue}>Tow Van</Text>
-              </View>
-            </View>
-
-            <TouchableOpacity style={styles.callButton} activeOpacity={0.85}>
-              <Text style={styles.callButtonText}>Call now</Text>
-            </TouchableOpacity>
+            
+            
+           
           </View>
-        </View>
+        
       </ScrollView>
     </SafeAreaView>
   );
@@ -175,7 +149,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   liveCard: {
-    backgroundColor: '#11192d',
+    backgroundColor: '#FFEDD5',
     borderRadius: 26,
     padding: 16,
   },
@@ -209,7 +183,7 @@ const styles = StyleSheet.create({
   },
   progressBox: {
     marginTop: 16,
-    backgroundColor: '#232c3f',
+    backgroundColor: '#c3e2c3ff',
     borderRadius: 18,
     padding: 14,
   },
@@ -266,7 +240,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   ticketBadge: {
-    backgroundColor: '#ffe4cf',
+    backgroundColor: '#70c65bff',
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 999,

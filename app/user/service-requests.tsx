@@ -10,20 +10,24 @@ export default function ServiceRequests() {
 
   useEffect(() => {
     const loadRequests = async () => {
-      const q = query(
-        collection(db, "requests"),
-        where("serviceTitle", "==", serviceTitle),
-        where("status", "==", "pending")
-      );
+      try {
+        const q = query(
+          collection(db, "requests"),
+          where("serviceType", "==", serviceTitle),   // 🔥 مهم
+          where("status", "==", "pending")
+        );
 
-      const snapshot = await getDocs(q);
+        const snapshot = await getDocs(q);
 
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-      setRequests(data);
+        setRequests(data);
+      } catch (e) {
+        console.log("ERROR:", e);
+      }
     };
 
     loadRequests();
@@ -38,11 +42,17 @@ export default function ServiceRequests() {
       ) : (
         requests.map((item) => (
           <View key={item.id} style={styles.card}>
-            <Text style={styles.name}>{item.userName || "Unknown user"}</Text>
-            <Text style={styles.text}>
-              Location: {item.location || "No location"}
+            <Text style={styles.name}>
+              {item.userEmail || "Unknown user"}
             </Text>
-            <Text style={styles.text}>Status: {item.status}</Text>
+
+            <Text style={styles.text}>
+              Address: {item.address || "No address"}
+            </Text>
+
+            <Text style={styles.text}>
+              Status: {item.status}
+            </Text>
           </View>
         ))
       )}
@@ -56,7 +66,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8FAFC",
   },
   content: {
-    padding: 70,
+    padding: 16,
     paddingBottom: 100,
   },
   title: {
@@ -83,6 +93,6 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 4,
     fontSize: 14,
-    color: "#000104ff",
+    color: "#6B7280",
   },
 });
