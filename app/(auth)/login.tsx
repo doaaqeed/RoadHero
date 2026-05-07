@@ -1,9 +1,7 @@
 import { auth } from "@/services/firebaseConfig";
-import {
-  Inter_400Regular,
-  Inter_600SemiBold,
-  useFonts,
-} from "@expo-google-fonts/inter";
+
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/services/firebaseConfig";
 
 import { Link, Stack, useRouter } from "expo-router";
 
@@ -23,14 +21,13 @@ import {
 import { RFValue } from "react-native-responsive-fontsize";
 
 export default function Login() {
-  const [loaded] = useFonts({
-    Inter_400Regular,
-    Inter_600SemiBold,
-  });
-
+ 
   const router = useRouter();
 
+  
+
   const onSubmit = async (data) => {
+    
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -38,7 +35,23 @@ export default function Login() {
         data.password,
       );
       const user = userCredential.user;
-      router.replace("/user/serviceRequestScreen");
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
+     
+
+      const userData = userDoc.data();
+      const state= userData?.state;
+      
+      
+        if (state === "needService") {
+          router.replace("/user/serviceRequestScreen");
+        } else if (state === "provideService") {
+          router.replace("/(tabs)");
+        }
+
+      
+
+      
     } catch (error) {
       alert("Invalid email or password");
       }
@@ -48,7 +61,7 @@ export default function Login() {
   const {
     control,
     handleSubmit,
-    watch,
+    
     formState: { errors },
   } = useForm({ mode: "onBlur" });
 
@@ -165,9 +178,10 @@ export default function Login() {
           <View style={[styles.center, styles.mB28, styles.mT_1]}>
             <Text>
               Don't have an account ?
-              <Link href="/register" style={styles.loginLink}>
+              <Link href="/selectRole" style={styles.loginLink}>
                 Register
               </Link>
+              
             </Text>
           </View>
         </View>

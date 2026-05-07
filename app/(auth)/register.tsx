@@ -21,6 +21,8 @@ import {
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
+import { useLocalSearchParams } from "expo-router";
+
 
 export default function Register() {
   const [loaded] = useFonts({
@@ -30,6 +32,7 @@ export default function Register() {
 
   const [checked, setChecked] = useState(false);
   const router = useRouter();
+  const { state } = useLocalSearchParams();
 
   const onSubmit = async (data) => {
     if (!checked) {
@@ -49,15 +52,22 @@ export default function Register() {
         fullName: data.fullName,
         email: data.email,
         address: data.address,
-        state: data.state,
+        state:state,
+        phoneNumber:data.phoneNumber,
+        
       });
 
-      const userState = data.state?.toLowerCase().trim();
-      if (userState === "user") {
+       
+      
+      if (state === "needService") {
         router.replace("/user/serviceRequestScreen");
-      } else if (userState === "provider") {
+      } else if (state === "provideService") {
         router.replace("/(tabs)");
       }
+
+      
+
+
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         alert("This email is already registered.");
@@ -85,7 +95,9 @@ export default function Register() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={{ backgroundColor: "#F5F5F5" }}>
         <View style={[styles.firstSection, styles.mB23]}>
-          <Text style={[styles.startText, styles.mB16,styles.mT_50]}>Getting Started</Text>
+          <Text style={[styles.startText, styles.mB16, styles.mT_50]}>
+            Getting Started
+          </Text>
           <Text style={styles.paragraph}>Seems you are new here,</Text>
           <Text style={styles.paragraph}>Let’s set up your account.</Text>
         </View>
@@ -210,9 +222,13 @@ export default function Register() {
 
             <Controller
               control={control}
-              name="state"
+              name="phoneNumber"
               rules={{
-                required: "State is required",
+                required: "phone number is required",
+                pattern: {
+                  value: /^[0-9]{10}$/,
+                  message: "10 correct numbers must be entered.",
+                },
               }}
               render={({
                 field: { onChange, value, onBlur },
@@ -220,9 +236,12 @@ export default function Register() {
               }) => (
                 <View style={{ marginBottom: 30 }}>
                   <TextInput
-                    placeholder="State"
+                    placeholder="phone number"
                     value={value}
-                    onChangeText={onChange}
+                    onChangeText={(text) => {
+                      const cleaned = text.trim().replace(/[^0-9]/g, "");
+                      onChange(cleaned);
+                    }}
                     style={[
                       styles.input,
                       {
