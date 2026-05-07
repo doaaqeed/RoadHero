@@ -5,20 +5,22 @@ import React from "react";
 export default function TabLayout() {
   return (
     <Tabs
+    
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#ff7a1a",
-        tabBarInactiveTintColor: "#9ca3af",
+        tabBarActiveTintColor: "#6e6a66ff",
+        tabBarInactiveTintColor: "#ffffffff",
         tabBarStyle: {
           height: 70,
           paddingTop: 8,
           paddingBottom: 8,
-          backgroundColor: "#11131a",
+          backgroundColor: "#EA580C",
           borderTopWidth: 0,
+          borderTopLeftRadius: 30,
+          borderTopRightRadius: 30,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: "600",
         },
       }}
     >
@@ -57,6 +59,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+  name="dashboard"
+  options={{
+    title: "Dashboard",
+    tabBarIcon: ({ color, size }) => (
+      <Ionicons name="grid" size={size} color={color} />
+    ),
+  }}
+/>
     </Tabs>
   );
 }
