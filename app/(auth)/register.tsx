@@ -53,6 +53,7 @@ export default function Register() {
         email: data.email,
         address: data.address,
         state:state,
+        phoneNumber:data.phoneNumber,
         
       });
 
@@ -94,7 +95,9 @@ export default function Register() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={{ backgroundColor: "#F5F5F5" }}>
         <View style={[styles.firstSection, styles.mB23]}>
-          <Text style={[styles.startText, styles.mB16,styles.mT_50]}>Getting Started</Text>
+          <Text style={[styles.startText, styles.mB16, styles.mT_50]}>
+            Getting Started
+          </Text>
           <Text style={styles.paragraph}>Seems you are new here,</Text>
           <Text style={styles.paragraph}>Let’s set up your account.</Text>
         </View>
@@ -217,7 +220,47 @@ export default function Register() {
               )}
             />
 
-           
+            <Controller
+              control={control}
+              name="phoneNumber"
+              rules={{
+                required: "phone number is required",
+                pattern: {
+                  value: /^[0-9]{10}$/,
+                  message: "10 correct numbers must be entered.",
+                },
+              }}
+              render={({
+                field: { onChange, value, onBlur },
+                fieldState: { error, isTouched },
+              }) => (
+                <View style={{ marginBottom: 30 }}>
+                  <TextInput
+                    placeholder="phone number"
+                    value={value}
+                    onChangeText={(text) => {
+                      const cleaned = text.trim().replace(/[^0-9]/g, "");
+                      onChange(cleaned);
+                    }}
+                    style={[
+                      styles.input,
+                      {
+                        borderColor: error
+                          ? "red"
+                          : isTouched
+                            ? "green"
+                            : "#ccc",
+                      },
+                    ]}
+                    onBlur={onBlur}
+                    placeholderTextColor="#706e6e"
+                  />
+                  {error && (
+                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+                  )}
+                </View>
+              )}
+            />
 
             <Controller
               control={control}
