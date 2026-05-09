@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { auth } from "@/services/firebaseConfig";
 import { Redirect } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/services/firebaseConfig";
+import { useEffect, useState } from "react";
 
 export default function Index() {
   const [user, setUser] = useState(undefined);
@@ -11,7 +11,6 @@ export default function Index() {
   }, []);
 
   if (user === undefined) return null;
-  
 
   return user ? (
     <Redirect href="/user/serviceRequestScreen" />

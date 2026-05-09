@@ -1,8 +1,7 @@
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View, Text, Pressable,StyleSheet, } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-
 
 export default function SelectRole() {
   const [role, setRole] = useState(null);
@@ -87,21 +86,18 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
   },
   box1: {
-    backgroundColor: "#ffb84d",
+    backgroundColor: "#f58124",
   },
   box2: {
-    backgroundColor: "#8bc8ed",
+    backgroundColor: "#aec077",
   },
   selectedBox: {
-    
-    opacity:.8
-    
+    opacity: 0.8,
   },
- 
+
   font: {
     fontWeight: "600",
     fontSize: RFValue(18),
     color: "#272626",
   },
 });
-
