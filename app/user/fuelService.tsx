@@ -74,7 +74,7 @@ export default function FuelService() {
 
         <View style={styles.cards}>
           <Pressable
-            onPress={() => setFuel("gasoline")}
+            onPress={() => setFuel("Gasoline")}
             style={[
               styles.card,
               fuel === "gasoline" && {
@@ -87,7 +87,7 @@ export default function FuelService() {
             <Text style={{ fontWeight: "bold" }}>Gasoline</Text>
           </Pressable>
           <Pressable
-            onPress={() => setFuel("diesel")}
+            onPress={() => setFuel("Diesel")}
             style={[
               styles.card,
               fuel === "diesel" && {
