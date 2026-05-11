@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 import { db } from "../../services/firebaseConfig";
 
 export default function ServiceRequests() {
@@ -13,8 +13,8 @@ export default function ServiceRequests() {
       try {
         const q = query(
           collection(db, "requests"),
-          where("serviceType", "==", serviceTitle),   // 🔥 مهم
-          where("status", "==", "pending")
+          where("serviceType", "==", serviceTitle), // 🔥 مهم
+          where("status", "==", "pending"),
         );
 
         const snapshot = await getDocs(q);
@@ -41,19 +41,24 @@ export default function ServiceRequests() {
         <Text style={styles.empty}>No requests yet</Text>
       ) : (
         requests.map((item) => (
-          <View key={item.id} style={styles.card}>
-            <Text style={styles.name}>
-              {item.userEmail || "Unknown user"}
-            </Text>
+          <Pressable
+            onPress={() => {
+              router.push({
+                pathname: "/requests/[id]",
+                params: { id: item.id },
+              });
+            }}
+            key={item.id}
+            style={styles.card}
+          >
+            <Text style={styles.name}>{item.userEmail || "Unknown user"}</Text>
 
             <Text style={styles.text}>
               Address: {item.address || "No address"}
             </Text>
 
-            <Text style={styles.text}>
-              Status: {item.status}
-            </Text>
-          </View>
+            <Text style={styles.text}>Status: {item.status}</Text>
+          </Pressable>
         ))
       )}
     </ScrollView>

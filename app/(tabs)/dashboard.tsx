@@ -1,23 +1,23 @@
-import React, { useState } from "react";
 import { router } from "expo-router";
+import React, { useState } from "react";
 
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import {
+  Bell,
+  CheckSquare,
   Fuel,
-  Truck,
   LifeBuoy,
+  Truck,
   Wrench,
   Zap,
-  CheckSquare,
-  Bell,
   type LucideIcon,
 } from "lucide-react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type Service = {
   title: string;
@@ -29,44 +29,44 @@ type Service = {
 
 const services: Service[] = [
   {
-      title: "Fuel Delivery",
+    title: "Fuel Delivery",
 
-      Icon: Fuel,
-      bgColor: "#DCFCE7",
-      iconColor: "#16A34A",
-      subtitle: ""
+    Icon: Fuel,
+    bgColor: "#DCFCE7",
+    iconColor: "#16A34A",
+    subtitle: "",
   },
   {
-      title: "Tow Truck",
+    title: "Tow Truck",
 
-      Icon: Truck,
-      bgColor: "#FEE2E2",
-      iconColor: "#DC2626",
-      subtitle: ""
+    Icon: Truck,
+    bgColor: "#FEE2E2",
+    iconColor: "#DC2626",
+    subtitle: "",
   },
   {
-      title: "Tire Repair & Replacement",
+    title: "Tire Service",
 
-      Icon: LifeBuoy,
-      bgColor: "#CFFAFE",
-      iconColor: "#0891B2",
-      subtitle: ""
+    Icon: LifeBuoy,
+    bgColor: "#CFFAFE",
+    iconColor: "#0891B2",
+    subtitle: "",
   },
   {
-      title: "On-Site Mechanic",
+    title: "On-site Mechanic",
 
-      Icon: Wrench,
-      bgColor: "#FEF3C7",
-      iconColor: "#D97706",
-      subtitle: ""
+    Icon: Wrench,
+    bgColor: "#FEF3C7",
+    iconColor: "#D97706",
+    subtitle: "",
   },
   {
-      title: "Jump Start",
+    title: "Jump Start",
 
-      Icon: Zap,
-      bgColor: "#FFEDD5",
-      iconColor: "#EA580C",
-      subtitle: ""
+    Icon: Zap,
+    bgColor: "#FFEDD5",
+    iconColor: "#EA580C",
+    subtitle: "",
   },
 ];
 
@@ -75,7 +75,6 @@ export default function Dashboard() {
 
   return (
     <View style={styles.container}>
-      
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Dashboard</Text>
         <Bell size={24} color="#fff" strokeWidth={2.2} />
@@ -86,23 +85,20 @@ export default function Dashboard() {
         {services.map(({ title, subtitle, Icon, bgColor, iconColor }) => (
           <TouchableOpacity
             key={title}
-            style={[
-              styles.card,
-              pressedCard === title && styles.cardPressed,
-            ]}
+            style={[styles.card, pressedCard === title && styles.cardPressed]}
             activeOpacity={0.9}
             onPress={() =>
-  router.push({
-    pathname: "/user/service-requests" as any,
-    params: { serviceTitle: title },
-  })
-}
+              router.push({
+                pathname: "/user/service-requests" as any,
+                params: { serviceTitle: title },
+              })
+            }
           >
             <View style={[styles.iconBox, { backgroundColor: bgColor }]}>
               <Icon size={24} color={iconColor} strokeWidth={2.4} />
             </View>
 
-           <Text style={styles.cardTitle}>{title}</Text>
+            <Text style={styles.cardTitle}>{title}</Text>
           </TouchableOpacity>
         ))}
 
@@ -135,7 +131,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F1F5F9",
   },
 
-  
   header: {
     backgroundColor: "#EA580C",
     paddingTop: 60,
@@ -149,9 +144,9 @@ const styles = StyleSheet.create({
   },
 
   headerTitle: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 
   content: {
