@@ -1,21 +1,46 @@
 import { useEffect, useState } from "react";
-import { Redirect } from "expo-router";
+import { useRouter } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/services/firebaseConfig";
+import { View, ActivityIndicator } from "react-native";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function Index() {
-  const [user, setUser] = useState(undefined);
+  const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    return onAuthStateChanged(auth, setUser);
+    
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+       
+      
+     
+      if (user) {
+
+       
+       
+        router.replace("/user/serviceRequestScreen");
+      } else {
+       
+        router.replace("/login");
+      }
+      setIsReady(true);
+    });
+
+    return unsubscribe; 
   }, []);
 
-  if (user === undefined) return null;
-  
-
-  return user ? (
-    <Redirect href="/user/serviceRequestScreen" />
-  ) : (
-    <Redirect href="/login" />
+ 
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#fff",
+      }}
+    >
+      <ActivityIndicator size="large" color="#0000ff" />
+    </View>
   );
 }

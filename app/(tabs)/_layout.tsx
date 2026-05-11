@@ -5,7 +5,6 @@ import React from "react";
 export default function TabLayout() {
   return (
     <Tabs
-    
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#6e6a66ff",
@@ -14,7 +13,7 @@ export default function TabLayout() {
           height: 70,
           paddingTop: 8,
           paddingBottom: 8,
-          backgroundColor: "#EA580C",
+          backgroundColor: "#f07e41",
           borderTopWidth: 0,
           borderTopLeftRadius: 30,
           borderTopRightRadius: 30,
@@ -60,14 +59,27 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-  name="dashboard"
-  options={{
-    title: "Dashboard",
-    tabBarIcon: ({ color, size }) => (
-      <Ionicons name="grid" size={size} color={color} />
-    ),
-  }}
-/>
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "person-circle" : "person-circle-outline"} 
+              size={28}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: "Dashboard",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="grid" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
