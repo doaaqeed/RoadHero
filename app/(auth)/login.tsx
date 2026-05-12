@@ -70,7 +70,7 @@ export default function Login() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView contentContainerStyle={{ backgroundColor: "#F5F5F5" }}>
+      <ScrollView >
         <View style={[styles.firstSection, styles.mB23]}>
           <Text style={[styles.startText, styles.mB16, styles.mT_150]}>
             Let’s Log You In
