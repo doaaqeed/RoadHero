@@ -1,4 +1,3 @@
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -7,73 +6,57 @@ import "react-native-reanimated";
 import WelcomeScreen from "./welcomeSplash";
 
 export const unstable_settings = {
-  anchor: "(tabs)",
+  // Ensure that reloading on `/modal` keeps a back button present.
+  initialRouteName: "(tabs)",
 };
 
 export default function RootLayout() {
   const [isAppReady, setIsAppReady] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
-  const colorScheme = useColorScheme();
 
   useEffect(() => {
     async function prepare() {
-      //is first time
-      const hasLaunched = await AsyncStorage.getItem("hasLaunched");
-      setShowOnboarding(hasLaunched === null);
-
-      setTimeout(() => {
-        setIsAppReady(true);
-      }, 3000);
+      try {
+        const hasLaunched = await AsyncStorage.getItem("hasLaunched");
+        // If hasLaunched is null, it's the first time
+        setShowOnboarding(hasLaunched === null);
+      } catch (e) {
+        console.warn("Error checking launch status:", e);
+        setShowOnboarding(false); // Default to false on error to not block user
+      } finally {
+        // Keep splash screen for 3 seconds
+        setTimeout(() => {
+          setIsAppReady(true);
+        }, 3000);
+      }
     }
     prepare();
   }, []);
 
-  // only the Welcome Screen appear while first 3 sec
-  if (!isAppReady) {
+  // While checking storage or waiting on splash timer
+  if (!isAppReady || showOnboarding === null) {
     return <WelcomeScreen />;
   }
 
   return (
     <>
       <Stack
+        initialRouteName={showOnboarding ? "onboarding" : "(tabs)"}
         screenOptions={{
           headerShown: false,
           headerTitle: "",
           headerTransparent: true,
-          headerTintColor: "#000000",
         }}
       >
-        {/* Conditional initial route */}
-        {showOnboarding ? (
-          <Stack.Screen name="onboarding" />
-        ) : (
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        )}
-
-        {/* Other screens */}
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="selectRole" />
         <Stack.Screen
           name="modal"
           options={{ presentation: "modal", title: "Modal" }}
         />
       </Stack>
-
       <StatusBar style="light" />
     </>
-    /*<>
-      <Stack
-        screenOptions={{
-          headerTitle: "",
-          headerTransparent: true,
-          headerTintColor: "#000000",
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="modal"
-          options={{ presentation: "modal", title: "Modal" }}
-        />
-      </Stack>
-      <StatusBar style="light" />
-    </>*/
   );
 }
