@@ -2,7 +2,6 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 
 import {
-  Bell,
   CheckSquare,
   Fuel,
   LifeBuoy,
@@ -11,6 +10,7 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react-native";
+
 import {
   ScrollView,
   StyleSheet,
@@ -18,6 +18,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
+import DashboardHeader from "@/components/DashboardHeader";
 
 type Service = {
   title: string;
@@ -30,7 +32,6 @@ type Service = {
 const services: Service[] = [
   {
     title: "Fuel Delivery",
-
     Icon: Fuel,
     bgColor: "#DCFCE7",
     iconColor: "#16A34A",
@@ -38,7 +39,6 @@ const services: Service[] = [
   },
   {
     title: "Tow Truck",
-
     Icon: Truck,
     bgColor: "#FEE2E2",
     iconColor: "#DC2626",
@@ -46,7 +46,6 @@ const services: Service[] = [
   },
   {
     title: "Tire Service",
-
     Icon: LifeBuoy,
     bgColor: "#CFFAFE",
     iconColor: "#0891B2",
@@ -54,7 +53,6 @@ const services: Service[] = [
   },
   {
     title: "On-site Mechanic",
-
     Icon: Wrench,
     bgColor: "#FEF3C7",
     iconColor: "#D97706",
@@ -62,7 +60,6 @@ const services: Service[] = [
   },
   {
     title: "Jump Start",
-
     Icon: Zap,
     bgColor: "#FFEDD5",
     iconColor: "#EA580C",
@@ -75,14 +72,10 @@ export default function Dashboard() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Dashboard</Text>
-        <Bell size={24} color="#fff" strokeWidth={2.2} />
-      </View>
+      <DashboardHeader />
 
-      {/* CONTENT */}
       <ScrollView contentContainerStyle={styles.content}>
-        {services.map(({ title, subtitle, Icon, bgColor, iconColor }) => (
+        {services.map(({ title, Icon, bgColor, iconColor }) => (
           <TouchableOpacity
             key={title}
             style={[styles.card, pressedCard === title && styles.cardPressed]}
@@ -102,7 +95,6 @@ export default function Dashboard() {
           </TouchableOpacity>
         ))}
 
-        {/* Completed */}
         <TouchableOpacity
           style={[
             styles.completedCard,
@@ -129,24 +121,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F1F5F9",
-  },
-
-  header: {
-    backgroundColor: "#EA580C",
-    paddingTop: 60,
-    paddingBottom: 50,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
-
-  headerTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "700",
   },
 
   content: {
