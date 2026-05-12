@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/services/firebaseConfig";
 import { View, ActivityIndicator } from "react-native";
 import { doc, getDoc } from "firebase/firestore";
+import { auth } from "@/services/firebaseConfig";
+import { Redirect } from "expo-router";
+import { onAuthStateChanged } from "firebase/auth";
+import { useEffect, useState } from "react";
+
 
 export default function Index() {
   const router = useRouter();
@@ -27,8 +29,11 @@ export default function Index() {
       setIsReady(true);
     });
 
+
     return unsubscribe; 
   }, []);
+  
+
 
  
   return (
