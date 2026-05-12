@@ -35,12 +35,17 @@ export default function Login() {
         data.password,
       );
       const user = userCredential.user;
+      console.log("start");
+
       const userDoc = await getDoc(doc(db, "users", user.uid));
+      console.log("start2");
 
      
 
       const userData = userDoc.data();
+      console.log("Full User Data:", userData);
       const state= userData?.state;
+      console.log("start4");
       
       
         if (state === "needService") {

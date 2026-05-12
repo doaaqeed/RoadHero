@@ -236,7 +236,7 @@ export default function Profile() {
                 control={control}
                 name="fullName"
                 rules={{
-                  required: "Full name is required",
+                  
                   minLength: {
                     value: 3,
                     message: "Name must be at least 3 characters",
@@ -276,7 +276,7 @@ export default function Profile() {
                 control={control}
                 name="email"
                 rules={{
-                  required: "Email is required",
+                 
                   pattern: {
                     value: /^\S+@\S+\.\S+$/,
                     message: "Invalid email format",
@@ -317,7 +317,7 @@ export default function Profile() {
               <Controller
                 control={control}
                 name="address"
-                rules={{ required: "Address is required" }}
+                
                 render={({
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
@@ -352,7 +352,7 @@ export default function Profile() {
                 control={control}
                 name="phoneNumber"
                 rules={{
-                  required: "phone number is required",
+                 
                   pattern: {
                     value: /^[0-9]{10}$/,
                     message: "10 correct numbers must be entered.",
