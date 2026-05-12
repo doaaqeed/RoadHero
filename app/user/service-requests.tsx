@@ -13,7 +13,7 @@ export default function ServiceRequests() {
       try {
         const q = query(
           collection(db, "requests"),
-          where("serviceType", "==", serviceTitle), // 🔥 مهم
+          where("serviceType", "==", serviceTitle),
           where("status", "==", "pending"),
         );
 
