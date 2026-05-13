@@ -1,7 +1,6 @@
-import { auth } from "@/services/firebaseConfig";
+import { auth, db } from "@/services/firebaseConfig";
 
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/services/firebaseConfig";
 
 import { Link, Stack, useRouter } from "expo-router";
 
@@ -21,13 +20,9 @@ import {
 import { RFValue } from "react-native-responsive-fontsize";
 
 export default function Login() {
- 
   const router = useRouter();
 
-  
-
   const onSubmit = async (data) => {
-    
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -37,40 +32,32 @@ export default function Login() {
       const user = userCredential.user;
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
-     
-
       const userData = userDoc.data();
-      const state= userData?.state;
-      
-      
-        if (state === "needService") {
-          router.replace("/user/serviceRequestScreen");
-        } else if (state === "provideService") {
-          router.replace("/(tabs)");
-        }
+      const state = userData?.state;
 
-      
-
-      
-    } catch (error) {
-      alert("Invalid email or password");
+      if (state === "needService") {
+        router.replace("/(user)/");
+      } else if (state === "provideService") {
+        router.replace("/(provider)/");
       }
-    
+    } catch (error) {
+      console.error(error);
+      alert("Invalid email or password");
+    }
   };
 
   const {
     control,
     handleSubmit,
-    
-    formState: { errors },
-  } = useForm({ mode: "onBlur" });
-
- 
+    formState: { errors, isValid },
+  } = useForm({
+    mode: "onChange",
+  });
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView >
+      <ScrollView>
         <View style={[styles.firstSection, styles.mB23]}>
           <Text style={[styles.startText, styles.mB16, styles.mT_150]}>
             Let’s Log You In
@@ -170,7 +157,11 @@ export default function Login() {
         <View style={[styles.center, styles.mT_30]}>
           <Pressable
             onPress={handleSubmit(onSubmit)}
-            style={styles.ContinuePress}
+            disabled={!isValid}
+            style={[
+              styles.ContinuePress,
+              { backgroundColor: isValid ? "#FD6B22" : "#ccc" }, // 3. Change color dynamically
+            ]}
           >
             <Text style={[styles.ContinueText]}>Login</Text>
           </Pressable>
@@ -181,14 +172,13 @@ export default function Login() {
               <Link href="/selectRole" style={styles.loginLink}>
                 Register
               </Link>
-              
             </Text>
           </View>
         </View>
       </ScrollView>
     </>
-  );}
-
+  );
+}
 
 const styles = StyleSheet.create({
   title: {

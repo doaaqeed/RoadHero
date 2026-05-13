@@ -49,7 +49,7 @@ export default function Index() {
     </View>
   );
 }*/
-import { auth } from "@/services/firebaseConfig";
+/*import { auth } from "@/services/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
@@ -72,7 +72,7 @@ export default function Index() {
             router.replace("/onboarding");
           } else if (user) {
             // Returning user who is already signed in
-            router.replace("/user/serviceRequestScreen");
+            router.replace("/(user)/index");
           } else {
             // Returning user who needs to log in
             router.replace("/login");
@@ -92,6 +92,69 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color="#FF8C00" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+});
+*/
+import { auth, db } from "@/services/firebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { useEffect } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+
+export default function Index() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkNavigation = async () => {
+      try {
+        const hasLaunched = await AsyncStorage.getItem("hasLaunched");
+
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (hasLaunched === null) {
+            router.replace("/onboarding");
+          } else if (user) {
+            // ROLE-BASED CHECK:
+            // We need to fetch the user's state from Firestore to know where to send them
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            const userData = userDoc.data();
+            const state = userData?.state;
+
+            if (state === "provideService") {
+              router.replace("/(provider)/index");
+            } else {
+              // Default to user group if state is "needService" or missing
+              router.replace("/(user)/index");
+            }
+          } else {
+            router.replace("/login");
+          }
+        });
+
+        return unsubscribe;
+      } catch (e) {
+        console.error("Navigation Error:", e);
+        router.replace("/login");
+      }
+    };
+
+    checkNavigation();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <ActivityIndicator size="large" color="#f07e41" />
     </View>
   );
 }

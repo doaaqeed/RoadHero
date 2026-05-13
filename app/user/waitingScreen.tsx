@@ -1,3 +1,5 @@
+import { useBroadcastTimer } from "@/hooks/useBroadcastTimer";
+import { db } from "@/services/firebaseConfig";
 import {
   router,
   useFocusEffect,
@@ -15,8 +17,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useBroadcastTimer } from "../hooks/useBroadcastTimer";
-import { db } from "../services/firebaseConfig";
 
 export default function WaitingScreen() {
   const { requestId } = useLocalSearchParams();
@@ -27,13 +27,12 @@ export default function WaitingScreen() {
     if (!requestId || Array.isArray(requestId)) return;
 
     try {
-      // Update the status to 'canceled' in Firestore
       await updateDoc(doc(db, "requests", requestId), {
         status: "canceled",
-        canceledAt: new Date().toISOString(), // Good practice for your records
+        canceledAt: new Date().toISOString(),
       });
 
-      router.replace("/user/serviceRequestScreen");
+      router.replace("/(user)");
     } catch (error) {
       Alert.alert("Error", "Could not cancel the request. Please try again.");
     }

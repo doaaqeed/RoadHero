@@ -1,3 +1,4 @@
+import Header from "@/components/Header";
 import { HelloWave } from "@/components/hello-wave";
 import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -15,7 +16,6 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-
 const services = [
   {
     id: 1,
@@ -132,6 +132,8 @@ export default function HomeScreen() {
           headerLeft: () => null,
         }}
       />
+      <Header title="Home Screen" />
+
       <ScrollView style={styles.screen}>
         <View style={styles.container}>
           <View style={styles.titleContainer}>
@@ -222,7 +224,7 @@ export default function HomeScreen() {
                               locationName,
                             );
                             router.push({
-                              pathname: "/waitingScreen",
+                              pathname: "/user/waitingScreen",
                               params: { requestId },
                             });
                           } catch (error: any) {
@@ -269,7 +271,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    marginTop: 60,
+    marginTop: 20,
     paddingHorizontal: 20,
   },
   titleContainer: {
