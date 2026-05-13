@@ -19,7 +19,7 @@ import {
   View,
 } from "react-native";
 
-import DashboardHeader from "@/components/DashboardHeader";
+import Header from "@/components/Header";
 
 type Service = {
   title: string;
@@ -72,7 +72,7 @@ export default function Dashboard() {
 
   return (
     <View style={styles.container}>
-      <DashboardHeader />
+      <Header title="Dashboard" />
 
       <ScrollView contentContainerStyle={styles.content}>
         {services.map(({ title, Icon, bgColor, iconColor }) => (
@@ -82,7 +82,7 @@ export default function Dashboard() {
             activeOpacity={0.9}
             onPress={() =>
               router.push({
-                pathname: "/user/service-requests" as any,
+                pathname: "/provider/service-requests" as any,
                 params: { serviceTitle: title },
               })
             }

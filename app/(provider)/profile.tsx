@@ -1,30 +1,25 @@
-import {  Stack, useRouter, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { auth, db } from "@/services/firebaseConfig";
+import * as ImagePicker from "expo-image-picker";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { signOut, updatePassword } from "firebase/auth";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
+  Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput, 
-  Image,
+  TextInput,
   View,
-  Alert,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-import * as ImagePicker from "expo-image-picker";
-import { db, auth } from "@/services/firebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { updatePassword } from "firebase/auth";
-import { useEffect } from "react";
-import { signOut } from "firebase/auth";
-
 
 const IMGBB_API_KEY = "f8c1bfe3710715a1fe2209d1fa0471b2";
-
-
 
 export default function Profile() {
   const router = useRouter();
@@ -115,7 +110,6 @@ export default function Profile() {
     }
   };*/
 
-  
   const { control, handleSubmit, reset } = useForm({
     mode: "onBlur",
     defaultValues: {
@@ -126,7 +120,6 @@ export default function Profile() {
       password: "",
     },
   });
-
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -156,10 +149,10 @@ export default function Profile() {
   }, [reset]);
 
   const onSubmit = async (data) => {
-    const user=auth.currentUser;
-    if(user){
-      try{
-        const userRef=doc(db,'users',user.uid);
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const userRef = doc(db, "users", user.uid);
         await updateDoc(userRef, {
           fullName: data.fullName,
           address: data.address,
@@ -170,42 +163,36 @@ export default function Profile() {
           await updatePassword(user, data.password);
         }
         Alert.alert("Success", "Profile updated successfully!");
-
-      }catch(error){
+      } catch (error) {
         console.error(error);
         Alert.alert("Error", "Could not update profile");
       }
     }
     return;
-    
   };
 
- const handleLogout = () => {
-   Alert.alert(
-     "Logout", 
-     "Are you sure you want to log out?", 
-     [
-       {
-         text: "Cancel",
-         onPress: () => console.log("Cancel Pressed"),
-         style: "cancel", 
-       },
-       {
-         text: "Log Out",
-         style: "destructive", 
-         onPress: async () => {
-           try {
-             await signOut(auth);
-            
-             router.replace("/login");
-           } catch (error) {
-             Alert.alert("Error", "Failed to log out. Please try again.");
-           }
-         },
-       },
-     ],
-   );
- };
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to log out?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      {
+        text: "Log Out",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await signOut(auth);
+
+            router.replace("/login");
+          } catch (error) {
+            Alert.alert("Error", "Failed to log out. Please try again.");
+          }
+        },
+      },
+    ]);
+  };
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -458,7 +445,6 @@ export default function Profile() {
   );
 }
 
-
 const styles = StyleSheet.create({
   center: {
     alignItems: "center",
@@ -467,7 +453,7 @@ const styles = StyleSheet.create({
   },
   firstSection: {
     backgroundColor: "#f07e41",
-    height: 320,
+    height: 330,
   },
   secondSection: {
     paddingTop: 50,
@@ -481,7 +467,7 @@ const styles = StyleSheet.create({
     borderColor: "#ece4e4",
     padding: RFValue(16),
     borderRadius: RFValue(25),
-    backgroundColor:"#fc2929ea",
+    backgroundColor: "#fc2929ea",
     marginBottom: 30,
     width: RFValue(300),
     alignItems: "center",
