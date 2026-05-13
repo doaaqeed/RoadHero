@@ -2,8 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const hiddenRoutes = ["index","request-progress"];
-
+const hiddenRoutes = ["index", "request-progress"];
 export default function AppTabBar({ state, descriptors, navigation }: any) {
   const visibleRoutes = state.routes.filter(
     (route: any) => !hiddenRoutes.includes(route.name)
@@ -28,7 +27,9 @@ export default function AppTabBar({ state, descriptors, navigation }: any) {
           });
 
           if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name);
+            navigation.navigate(route.name, {
+              mode: route.name === "request-progress" ? "provider" : undefined,
+            });
           }
         };
 
@@ -38,12 +39,16 @@ export default function AppTabBar({ state, descriptors, navigation }: any) {
           iconName = "home";
         }
 
+        if (route.name === "request-progress") {
+          iconName = isFocused ? "time" : "time-outline";
+        }
+
         if (route.name === "profile") {
           iconName = isFocused ? "person-circle" : "person-circle-outline";
         }
 
         if (route.name === "dashboard") {
-          iconName = "grid";
+          iconName = isFocused ? "grid" : "grid-outline";
         }
 
         const color = isFocused ? "#6e6a66ff" : "#ffffff";

@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import AppTabBar from "@/components/AppTabBar";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
   return (
@@ -26,12 +27,7 @@ export default function TabLayout() {
 
       
 
-      <Tabs.Screen
-        name="request-progress"
-        options={{
-          href: null,
-        }}
-      />
+      
 
       <Tabs.Screen
         name="profile"
@@ -39,6 +35,16 @@ export default function TabLayout() {
           title: "Profile",
         }}
       />
+      <Tabs.Screen
+  name="request-progress"
+  options={{
+    title: "Progress",
+    tabBarIcon: ({ color, size }) => (
+      <Ionicons name="time" size={size} color={color} />
+    ),
+  }}
+/>
+
 
       <Tabs.Screen
         name="dashboard"

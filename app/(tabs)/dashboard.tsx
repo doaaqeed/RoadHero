@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   CheckSquare,
@@ -20,6 +20,8 @@ import {
 } from "react-native";
 
 import DashboardHeader from "@/components/DashboardHeader";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/services/firebaseConfig";
 
 type Service = {
   title: string;
@@ -69,6 +71,25 @@ const services: Service[] = [
 
 export default function Dashboard() {
   const [pressedCard, setPressedCard] = useState<string | null>(null);
+  const [completedCount, setCompletedCount] = useState(0);
+
+  useEffect(() => {
+    const loadCompletedCount = async () => {
+      try {
+        const q = query(
+          collection(db, "requests"),
+          where("status", "==", "completed")
+        );
+
+        const snapshot = await getDocs(q);
+        setCompletedCount(snapshot.size);
+      } catch (error) {
+        console.log("Error loading completed count:", error);
+      }
+    };
+
+    loadCompletedCount();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -109,7 +130,9 @@ export default function Dashboard() {
 
           <View>
             <Text style={styles.cardTitle}>Completed</Text>
-            <Text style={styles.cardSubtitle}>12 services this month</Text>
+            <Text style={styles.cardSubtitle}>
+              {completedCount} services this month
+            </Text>
           </View>
         </TouchableOpacity>
       </ScrollView>
