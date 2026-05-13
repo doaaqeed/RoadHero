@@ -1,9 +1,4 @@
 import { auth, db } from "@/services/firebaseConfig";
-import {
-  Inter_400Regular,
-  Inter_600SemiBold,
-  useFonts,
-} from "@expo-google-fonts/inter";
 import Checkbox from "expo-checkbox";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -17,16 +12,16 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
+  
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
+import { useLocalSearchParams } from "expo-router";
+import CustomInput from "@/components/CustomInput";
+
 
 export default function Register() {
-  const [loaded] = useFonts({
-    Inter_400Regular,
-    Inter_600SemiBold,
-  });
+  
 
   const [checked, setChecked] = useState(false);
   const router = useRouter();
@@ -114,28 +109,14 @@ export default function Register() {
                 field: { onChange, value, onBlur },
                 fieldState: { error, isTouched },
               }) => (
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Full Name"
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
+                <CustomInput
+                  placeholder="Full Name"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={error}
+                  isTouched={isTouched}
+                />
               )}
             />
 
@@ -153,30 +134,14 @@ export default function Register() {
                 field: { onChange, value, onBlur },
                 fieldState: { error, isTouched },
               }) => (
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Email Address"
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
+                <CustomInput
+                  placeholder="Email Adress"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={error}
+                  isTouched={isTouched}
+                />
               )}
             />
 
@@ -188,28 +153,14 @@ export default function Register() {
                 field: { onChange, value, onBlur },
                 fieldState: { error, isTouched },
               }) => (
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Current Address"
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
+                <CustomInput
+                  placeholder="Current Address"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={error}
+                  isTouched={isTouched}
+                />
               )}
             />
 
@@ -227,31 +178,14 @@ export default function Register() {
                 field: { onChange, value, onBlur },
                 fieldState: { error, isTouched },
               }) => (
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="phone number"
-                    value={value}
-                    onChangeText={(text) => {
-                      const cleaned = text.trim().replace(/[^0-9]/g, "");
-                      onChange(cleaned);
-                    }}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
+                <CustomInput
+                  placeholder="phone number"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={error}
+                  isTouched={isTouched}
+                />
               )}
             />
 
@@ -269,29 +203,14 @@ export default function Register() {
                 field: { onChange, value, onBlur },
                 fieldState: { error, isTouched },
               }) => (
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Password"
-                    secureTextEntry
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
+                <CustomInput
+                  placeholder="Password"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={error}
+                  isTouched={isTouched}
+                />
               )}
             />
 
@@ -307,29 +226,14 @@ export default function Register() {
                 field: { onChange, value, onBlur },
                 fieldState: { error, isTouched },
               }) => (
-                <View style={{ marginBottom: 30 }}>
-                  <TextInput
-                    placeholder="Confirm Password"
-                    secureTextEntry
-                    value={value}
-                    onChangeText={onChange}
-                    style={[
-                      styles.input,
-                      {
-                        borderColor: error
-                          ? "red"
-                          : isTouched
-                            ? "green"
-                            : "#ccc",
-                      },
-                    ]}
-                    onBlur={onBlur}
-                    placeholderTextColor="#706e6e"
-                  />
-                  {error && (
-                    <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                  )}
-                </View>
+                <CustomInput
+                  placeholder="Confirm Password"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={error}
+                  isTouched={isTouched}
+                />
               )}
             />
           </View>
@@ -431,14 +335,7 @@ const styles = StyleSheet.create({
   padLeft_9: {
     paddingLeft: RFValue(9),
   },
-  input: {
-    borderWidth: 1,
-    padding: RFValue(20),
-    borderRadius: RFValue(18),
-    fontSize: RFValue(12),
-    width: RFValue(300),
-    writingDirection: "ltr",
-  },
+ 
   terms: {
     flexDirection: "row",
   },
@@ -466,10 +363,5 @@ const styles = StyleSheet.create({
   loginLink: {
     color: "#FD6B22",
   },
-  ERROR_MESSAGES: {
-    color: "rgba(242, 5, 5, 0.79)",
-    paddingTop: 5,
-    paddingLeft: 20,
-    fontSize: RFValue(11),
-  },
+ 
 });

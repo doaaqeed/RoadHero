@@ -14,12 +14,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-
+import CustomInput from "@/components/CustomInput";
 const IMGBB_API_KEY = "f8c1bfe3710715a1fe2209d1fa0471b2";
+
+
 
 export default function Profile() {
   const router = useRouter();
@@ -204,7 +205,7 @@ export default function Profile() {
               source={{
                 uri:
                   imgUrl ||
-                  "https://cdn-icons-png.flaticon.com/128/14849/14849086.png",
+                  "https://cdn-icons-png.flaticon.com/128/11311/11311954.png",
               }}
               style={styles.image}
             />
@@ -223,7 +224,6 @@ export default function Profile() {
                 control={control}
                 name="fullName"
                 rules={{
-                  required: "Full name is required",
                   minLength: {
                     value: 3,
                     message: "Name must be at least 3 characters",
@@ -233,28 +233,14 @@ export default function Profile() {
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="Full Name"
-                      value={value}
-                      onChangeText={onChange}
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="Full Name"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                  />
                 )}
               />
 
@@ -263,7 +249,6 @@ export default function Profile() {
                 control={control}
                 name="email"
                 rules={{
-                  required: "Email is required",
                   pattern: {
                     value: /^\S+@\S+\.\S+$/,
                     message: "Invalid email format",
@@ -273,30 +258,14 @@ export default function Profile() {
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="Email Address"
-                      value={value}
-                      editable={false}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="Email Adress"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                  />
                 )}
               />
 
@@ -304,33 +273,18 @@ export default function Profile() {
               <Controller
                 control={control}
                 name="address"
-                rules={{ required: "Address is required" }}
                 render={({
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="Current Address"
-                      value={value}
-                      onChangeText={onChange}
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="Current Address"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                  />
                 )}
               />
 
@@ -339,7 +293,6 @@ export default function Profile() {
                 control={control}
                 name="phoneNumber"
                 rules={{
-                  required: "phone number is required",
                   pattern: {
                     value: /^[0-9]{10}$/,
                     message: "10 correct numbers must be entered.",
@@ -349,30 +302,14 @@ export default function Profile() {
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="phone number"
-                      value={value}
-                      onChangeText={(text) =>
-                        onChange(text.trim().replace(/[^0-9]/g, ""))
-                      }
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="phone number"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                  />
                 )}
               />
 
@@ -390,29 +327,14 @@ export default function Profile() {
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="Leave blank to keep current password"
-                      secureTextEntry
-                      value={value}
-                      onChangeText={onChange}
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="Leave blank to keep current password"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                  />
                 )}
               />
             </View>
@@ -485,13 +407,7 @@ const styles = StyleSheet.create({
     color: "#fcf3f0f5",
   },
 
-  input: {
-    borderWidth: 1,
-    padding: RFValue(20),
-    borderRadius: RFValue(18),
-    fontSize: RFValue(12),
-    width: RFValue(290),
-  },
+  
   ContinuePress: {
     borderWidth: 1,
     borderColor: "#ece4e4",
@@ -507,12 +423,7 @@ const styles = StyleSheet.create({
     fontSize: RFValue(15),
     color: "#ffffff",
   },
-  ERROR_MESSAGES: {
-    color: "rgba(255, 0, 0, 0.79)",
-    paddingTop: 5,
-    paddingLeft: 20,
-    fontSize: RFValue(11),
-  },
+ 
   image: {
     width: 150,
     height: 150,

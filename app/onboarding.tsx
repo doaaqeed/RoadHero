@@ -22,7 +22,7 @@ export default function Onboarding() {
   const handleFinish = async () => {
     try {
       await AsyncStorage.setItem("hasLaunched", "true");
-      router.replace("/selectRole");
+      router.replace("/login");
     } catch (e) {
       console.error("Storage Error:", e);
     }
