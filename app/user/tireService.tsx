@@ -58,7 +58,7 @@ export default function TireService() {
       );
 
       router.push({
-        pathname: "/waitingScreen",
+        pathname: "/user/waitingScreen",
         params: { requestId },
       });
     } catch (error: any) {

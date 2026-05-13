@@ -45,7 +45,7 @@ export default function FuelService() {
       );
 
       router.push({
-        pathname: "/waitingScreen",
+        pathname: "/user/waitingScreen",
         params: { requestId },
       });
     } catch (error: any) {
