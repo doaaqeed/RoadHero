@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+/*import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
@@ -57,6 +57,43 @@ export default function RootLayout() {
         />
       </Stack>
       <StatusBar style="light" />
+    </>
+  );
+}
+*/
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
+import "react-native-reanimated";
+import WelcomeScreen from "./welcomeSplash";
+
+export default function RootLayout() {
+  const [isAppReady, setIsAppReady] = useState(false);
+
+  useEffect(() => {
+    // Show splash for 3 seconds
+    const timer = setTimeout(() => {
+      setIsAppReady(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isAppReady) {
+    return <WelcomeScreen />;
+  }
+
+  return (
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="selectRole" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+      </Stack>
+      <StatusBar style="dark" />
     </>
   );
 }
