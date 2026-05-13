@@ -19,9 +19,9 @@ import {
   View,
 } from "react-native";
 
-import DashboardHeader from "@/components/DashboardHeader";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import Header from "@/components/Header";
 import { db } from "@/services/firebaseConfig";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 type Service = {
   title: string;
@@ -78,7 +78,7 @@ export default function Dashboard() {
       try {
         const q = query(
           collection(db, "requests"),
-          where("status", "==", "completed")
+          where("status", "==", "completed"),
         );
 
         const snapshot = await getDocs(q);
@@ -93,7 +93,7 @@ export default function Dashboard() {
 
   return (
     <View style={styles.container}>
-      <DashboardHeader />
+      <Header title="Dashboard" />
 
       <ScrollView contentContainerStyle={styles.content}>
         {services.map(({ title, Icon, bgColor, iconColor }) => (
@@ -103,7 +103,7 @@ export default function Dashboard() {
             activeOpacity={0.9}
             onPress={() =>
               router.push({
-                pathname: "/user/service-requests" as any,
+                pathname: "/provider/service-requests" as any,
                 params: { serviceTitle: title },
               })
             }

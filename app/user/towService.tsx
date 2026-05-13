@@ -45,7 +45,7 @@ export default function TowService() {
       );
 
       router.push({
-        pathname: "/waitingScreen",
+        pathname: "/user/waitingScreen",
         params: { requestId },
       });
     } catch (error: any) {

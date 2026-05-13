@@ -44,7 +44,7 @@ export default function ServiceRequests() {
           <Pressable
             onPress={() => {
               router.push({
-                pathname: "/requests/[id]",
+                pathname: "/provider/[id]",
                 params: { id: item.id },
               });
             }}
@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   title: {
+    marginTop: 50,
     fontSize: 28,
     fontWeight: "800",
     color: "#111827",

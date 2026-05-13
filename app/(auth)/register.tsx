@@ -5,7 +5,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import Checkbox from "expo-checkbox";
-import { Link, Stack, useRouter } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
@@ -21,8 +21,6 @@ import {
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-import { useLocalSearchParams } from "expo-router";
-
 
 export default function Register() {
   const [loaded] = useFonts({
@@ -52,22 +50,15 @@ export default function Register() {
         fullName: data.fullName,
         email: data.email,
         address: data.address,
-        state:state,
-        phoneNumber:data.phoneNumber,
-        
+        state: state,
+        phoneNumber: data.phoneNumber,
       });
 
-       
-      
       if (state === "needService") {
-        router.replace("/user/serviceRequestScreen");
+        router.replace("/(user)/");
       } else if (state === "provideService") {
-        router.replace("/(tabs)");
+        router.replace("/(provider)/");
       }
-
-      
-
-
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         alert("This email is already registered.");
@@ -82,8 +73,10 @@ export default function Register() {
     control,
     handleSubmit,
     watch,
-    formState: { errors },
-  } = useForm({ mode: "onBlur" });
+    formState: { errors, isValid },
+  } = useForm({
+    mode: "onChange",
+  });
 
   const passwordVar = watch("password");
   if (!loaded) {
@@ -361,7 +354,14 @@ export default function Register() {
           <View style={[styles.center, styles.mT_30]}>
             <Pressable
               onPress={handleSubmit(onSubmit)}
-              style={styles.ContinuePress}
+              disabled={!isValid || !checked}
+              style={[
+                styles.ContinuePress,
+                {
+                  backgroundColor: isValid && checked ? "#FD6B22" : "#ccc",
+                  borderColor: isValid && checked ? "#FD6B22" : "#ccc",
+                },
+              ]}
             >
               <Text style={[styles.ContinueText]}>Register</Text>
             </Pressable>
