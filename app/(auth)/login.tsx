@@ -1,12 +1,8 @@
 import { auth } from "@/services/firebaseConfig";
-
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/services/firebaseConfig";
-
 import { Link, Stack, useRouter } from "expo-router";
-
 import { signInWithEmailAndPassword } from "firebase/auth";
-
 import { Controller, useForm } from "react-hook-form";
 import {
   KeyboardAvoidingView,
@@ -15,7 +11,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
+  
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
@@ -38,6 +34,7 @@ export default function Login() {
       );
       const user = userCredential.user;
       console.log("start");
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       const userDoc = await getDoc(doc(db, "users", user.uid));
       console.log("start2");

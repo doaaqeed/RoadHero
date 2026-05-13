@@ -1,9 +1,5 @@
 import { auth, db } from "@/services/firebaseConfig";
-import {
-  Inter_400Regular,
-  Inter_600SemiBold,
-  useFonts,
-} from "@expo-google-fonts/inter";
+
 import Checkbox from "expo-checkbox";
 import { Link, Stack, useRouter } from "expo-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -26,10 +22,7 @@ import CustomInput from "@/components/CustomInput";
 
 
 export default function Register() {
-  const [loaded] = useFonts({
-    Inter_400Regular,
-    Inter_600SemiBold,
-  });
+  
 
   const [checked, setChecked] = useState(false);
   const router = useRouter();
