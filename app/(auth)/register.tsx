@@ -16,7 +16,7 @@ import {
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-import { useLocalSearchParams } from "expo-router";
+
 import CustomInput from "@/components/CustomInput";
 
 
