@@ -8,7 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput, 
+   
   Image,
   View,
   Alert,

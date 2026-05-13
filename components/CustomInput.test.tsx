@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react-native";
-import CustomInput from "./CustomInput"; // تأكد من المسار
+import CustomInput from "./CustomInput"; 
 
 describe("CustomInput Component", () => {
   
