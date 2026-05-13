@@ -334,6 +334,7 @@ export default function Profile() {
                     onBlur={onBlur}
                     error={error}
                     isTouched={isTouched}
+                    secureTextEntry={true}
                   />
                 )}
               />

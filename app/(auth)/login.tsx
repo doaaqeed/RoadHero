@@ -62,7 +62,7 @@ export default function Login() {
     handleSubmit,
     formState: { errors, isValid },
   } = useForm({
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   return (
@@ -103,6 +103,8 @@ export default function Login() {
                   onBlur={onBlur}
                   error={error}
                   isTouched={isTouched}
+                  autoCapitalize="none" 
+                  keyboardType="email-address"
                 />
               )}
             />
@@ -128,6 +130,7 @@ export default function Login() {
                   onBlur={onBlur}
                   error={error}
                   isTouched={isTouched}
+                  secureTextEntry={true}
                 />
               )}
             />
@@ -140,7 +143,7 @@ export default function Login() {
             disabled={!isValid}
             style={[
               styles.ContinuePress,
-              { backgroundColor: isValid ? "#FD6B22" : "#ccc" }, 
+              { backgroundColor: isValid ? "#FD6B22" : "#ccc" },
             ]}
           >
             <Text style={[styles.ContinueText]}>Login</Text>

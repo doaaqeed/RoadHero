@@ -66,13 +66,11 @@ export default function Register() {
     watch,
     formState: { errors, isValid },
   } = useForm({
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   const passwordVar = watch("password");
-  if (!loaded) {
-    return null;
-  }
+ 
 
   return (
     <>
@@ -137,6 +135,8 @@ export default function Register() {
                   onBlur={onBlur}
                   error={error}
                   isTouched={isTouched}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
                 />
               )}
             />
@@ -206,6 +206,7 @@ export default function Register() {
                   onBlur={onBlur}
                   error={error}
                   isTouched={isTouched}
+                  secureTextEntry={true}
                 />
               )}
             />
@@ -229,6 +230,7 @@ export default function Register() {
                   onBlur={onBlur}
                   error={error}
                   isTouched={isTouched}
+                  secureTextEntry={true}
                 />
               )}
             />
