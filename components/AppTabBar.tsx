@@ -50,7 +50,9 @@ export default function AppTabBar({ state, descriptors, navigation }: any) {
           });
 
           if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name);
+            navigation.navigate(route.name, {
+              mode: route.name === "request-progress" ? "provider" : undefined,
+            });
           }
         };
 
@@ -59,6 +61,10 @@ export default function AppTabBar({ state, descriptors, navigation }: any) {
         if (route.name === "index") {
           // This covers the Home/Dashboard for both User and Provider
           iconName = isFocused ? "grid" : "grid-outline";
+        }
+
+        if (route.name === "request-progress") {
+          iconName = isFocused ? "time" : "time-outline";
         }
 
         if (route.name === "profile") {
