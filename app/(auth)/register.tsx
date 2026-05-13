@@ -1,3 +1,4 @@
+import CustomInput from "@/components/CustomInput";
 import { auth, db } from "@/services/firebaseConfig";
 import Checkbox from "expo-checkbox";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -12,17 +13,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-import { useLocalSearchParams } from "expo-router";
-import CustomInput from "@/components/CustomInput";
-
 
 export default function Register() {
-  
-
   const [checked, setChecked] = useState(false);
   const router = useRouter();
   const { state } = useLocalSearchParams();
@@ -335,7 +330,7 @@ const styles = StyleSheet.create({
   padLeft_9: {
     paddingLeft: RFValue(9),
   },
- 
+
   terms: {
     flexDirection: "row",
   },
@@ -363,5 +358,4 @@ const styles = StyleSheet.create({
   loginLink: {
     color: "#FD6B22",
   },
- 
 });
