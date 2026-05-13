@@ -1,6 +1,6 @@
-import { auth } from "@/services/firebaseConfig";
+
+import { auth, db } from "@/services/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/services/firebaseConfig";
 import { Link, Stack, useRouter } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Controller, useForm } from "react-hook-form";
@@ -19,13 +19,9 @@ import CustomInput from "@/components/CustomInput";
 
 
 export default function Login() {
- 
   const router = useRouter();
 
-  
-
   const onSubmit = async (data) => {
-    
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -39,37 +35,35 @@ export default function Login() {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       console.log("start2");
 
-     
-
       const userData = userDoc.data();
+
       console.log("Full User Data:", userData);
       const state= userData?.state;
       console.log("start4");
       
       
-        if (state === "needService") {
-          router.replace("/user/serviceRequestScreen");
-        } else if (state === "provideService") {
-          router.replace("/(tabs)");
-        }
 
-      
+     
 
-      
-    } catch (error) {
-      alert("Invalid email or password");
+
+      if (state === "needService") {
+        router.replace("/(user)/");
+      } else if (state === "provideService") {
+        router.replace("/(provider)/");
       }
-    
+    } catch (error) {
+      console.error(error);
+      alert("Invalid email or password");
+    }
   };
 
   const {
     control,
     handleSubmit,
-    
-    formState: { errors },
-  } = useForm({ mode: "onBlur" });
-
- 
+    formState: { errors, isValid },
+  } = useForm({
+    mode: "onChange",
+  });
 
   return (
     <>
@@ -143,7 +137,11 @@ export default function Login() {
         <View style={[styles.center, styles.mT_30]}>
           <Pressable
             onPress={handleSubmit(onSubmit)}
-            style={styles.ContinuePress}
+            disabled={!isValid}
+            style={[
+              styles.ContinuePress,
+              { backgroundColor: isValid ? "#FD6B22" : "#ccc" }, 
+            ]}
           >
             <Text style={[styles.ContinueText]}>Login</Text>
           </Pressable>
@@ -159,8 +157,8 @@ export default function Login() {
         </View>
       </ScrollView>
     </>
-  );}
-
+  );
+}
 
 const styles = StyleSheet.create({
   title: {

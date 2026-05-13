@@ -2,18 +2,40 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const hiddenRoutes = ["index","request-progress"];
+//const hiddenRoutes = ["index", "request-progress"];
 
 export default function AppTabBar({ state, descriptors, navigation }: any) {
-  const visibleRoutes = state.routes.filter(
-    (route: any) => !hiddenRoutes.includes(route.name)
-  );
+  const visibleRoutes = state.routes.filter((route: any) => {
+    const { options } = descriptors[route.key];
+
+    // 1. If href is explicitly null, hide it.
+    if (options.href === null) return false;
+
+    // 2. If it's a known service screen and href is undefined, hide it anyway
+    // (This is a safety net for when the layout isn't syncing properly)
+    const serviceScreens = [
+      "fuelService",
+      "providerListing",
+      "requestPending",
+      "tireService",
+      "towService",
+      "waitingScreen",
+      "[id]",
+      "service-requests",
+    ];
+
+    if (serviceScreens.includes(route.name) && options.href === undefined) {
+      return false;
+    }
+
+    return true;
+  });
 
   return (
     <View style={styles.tabBar}>
       {visibleRoutes.map((route: any) => {
         const originalIndex = state.routes.findIndex(
-          (item: any) => item.key === route.key
+          (item: any) => item.key === route.key,
         );
 
         const { options } = descriptors[route.key];
@@ -28,23 +50,30 @@ export default function AppTabBar({ state, descriptors, navigation }: any) {
           });
 
           if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name);
+            navigation.navigate(route.name, {
+              mode: route.name === "request-progress" ? "provider" : undefined,
+            });
           }
         };
 
         let iconName: keyof typeof Ionicons.glyphMap = "ellipse-outline";
 
-        if (route.name === "serviceRequestScreen") {
-          iconName = "home";
+        if (route.name === "index") {
+          // This covers the Home/Dashboard for both User and Provider
+          iconName = isFocused ? "grid" : "grid-outline";
+        }
+
+        if (route.name === "request-progress") {
+          iconName = isFocused ? "time" : "time-outline";
         }
 
         if (route.name === "profile") {
           iconName = isFocused ? "person-circle" : "person-circle-outline";
         }
 
-        if (route.name === "dashboard") {
+        /*if (route.name === "dashboard") {
           iconName = "grid";
-        }
+        }*/
 
         const color = isFocused ? "#6e6a66ff" : "#ffffff";
 

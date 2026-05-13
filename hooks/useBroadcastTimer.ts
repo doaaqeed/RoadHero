@@ -18,7 +18,7 @@ export const useBroadcastTimer = (
       if (data?.status === "accepted") {
         setIsAccepted(true);
         router.push({
-          pathname: "/request-progress",
+          pathname: "/shared/request-progress",
           params: { requestId },
         });
       }
