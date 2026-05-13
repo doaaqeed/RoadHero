@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 export default function Index() {
@@ -11,7 +11,7 @@ export default function Index() {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    let unsubscribeAuth: () => void; 
+    let unsubscribeAuth: () => void;
 
     const checkNavigation = async () => {
       try {
@@ -30,9 +30,9 @@ export default function Index() {
                 const State = userData.state;
 
                 if (State === "needService") {
-                  router.replace("/(user)/index");
+                  router.replace("/(user)");
                 } else if (State === "provideService") {
-                  router.replace("/(provider)/index");
+                  router.replace("/(provider)");
                 } else {
                   router.replace("/(auth)/login");
                 }
@@ -57,7 +57,6 @@ export default function Index() {
 
     checkNavigation();
 
-    
     return () => {
       if (unsubscribeAuth) unsubscribeAuth();
     };
