@@ -8,6 +8,7 @@ describe("CustomInput Component", () => {
     placeholder: "Enter your name",
     value: "",
     onChangeText: jest.fn(), 
+    
     error: null,
     isTouched: false,
   };
@@ -23,7 +24,9 @@ describe("CustomInput Component", () => {
   it("changes border color to red when there is an error", () => {
     const errorProp = { message: "Error" };
 
-    render(<CustomInput {...defaultProps} error={errorProp} />);
+    render(
+      <CustomInput {...defaultProps} error={errorProp}  />,
+    );
 
     const input = screen.getByPlaceholderText("Enter your name");
 
@@ -34,7 +37,7 @@ describe("CustomInput Component", () => {
   });
 
   it("changes border color to green when isTouched is true and no error", () => {
-    render(<CustomInput {...defaultProps} isTouched={true} error={null} />);
+    render(<CustomInput {...defaultProps} value="Mayar" error={null} />);
 
     const input = screen.getByPlaceholderText("Enter your name");
 

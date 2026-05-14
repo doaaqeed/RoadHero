@@ -204,7 +204,7 @@ export default function Profile() {
               source={{
                 uri:
                   imgUrl ||
-                  "https://cdn-icons-png.flaticon.com/128/14849/14849086.png",
+                  "https://cdn-icons-png.flaticon.com/128/11311/11311954.png",
               }}
               style={styles.image}
             />

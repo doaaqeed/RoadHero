@@ -27,11 +27,13 @@ const CustomInput = ({
         style={[
           styles.input,
           {
-            borderColor: error ? "red" : isTouched ? "green" : "#ccc",
+            borderColor: error ? "red" : value ? "green" : "#ccc",
           },
         ]}
       />
-      {error && <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>}
+      { error && (
+        <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
+      )}
     </View>
   );
 };
