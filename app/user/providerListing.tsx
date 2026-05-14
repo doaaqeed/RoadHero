@@ -59,7 +59,7 @@ export default function ProviderListing() {
 
   const handleRequest = (provider: Provider) => {
     router.push({
-      pathname: "/request-progress" as any,
+      pathname: "/shared/request-progress" as any,
       params: {
         mode: "user",
         providerId: provider.id,
@@ -87,13 +87,12 @@ export default function ProviderListing() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Ionicons name="chevron-back" size={34} color="#fff" />
         </TouchableOpacity>
-
-        
-
-        
       </View>
 
       <View style={styles.sheet}>
@@ -103,7 +102,12 @@ export default function ProviderListing() {
 
           {providers.map((provider) => (
             <View key={provider.id} style={styles.providerRow}>
-              <View style={[styles.avatarBox, { backgroundColor: provider.bgColor }]}>
+              <View
+                style={[
+                  styles.avatarBox,
+                  { backgroundColor: provider.bgColor },
+                ]}
+              >
                 <Ionicons
                   name="person-circle"
                   size={54}
@@ -121,7 +125,9 @@ export default function ProviderListing() {
                 </Text>
 
                 <View style={styles.ratingPriceRow}>
-                  <View style={styles.starsRow}>{renderStars(provider.rating)}</View>
+                  <View style={styles.starsRow}>
+                    {renderStars(provider.rating)}
+                  </View>
                   <Text style={styles.price}>{provider.price}</Text>
                 </View>
               </View>

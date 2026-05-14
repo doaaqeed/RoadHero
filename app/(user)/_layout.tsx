@@ -25,6 +25,12 @@ export default function UserTabLayout() {
         }}
       />
       <Tabs.Screen
+        name="history"
+        options={{
+          title: "History",
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: "Home",
