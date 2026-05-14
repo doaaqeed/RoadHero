@@ -1,7 +1,11 @@
 import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as Network from "expo-network"; // Added Network import
 import { router, useLocalSearchParams } from "expo-router";
+import { getAuth } from "firebase/auth"; // Added for user data
 import { useState } from "react";
+import { saveRequestOffline } from "../../utils/offlineStorage"; // Added SQLite utility
+
 import {
   ActivityIndicator,
   Alert,
@@ -26,7 +30,7 @@ export default function TowService() {
 
     if (!lat || !lng) {
       Alert.alert(
-        "error",
+        "Error",
         "Location data is unavailable, please go back and try again.",
       );
       return;
@@ -34,20 +38,47 @@ export default function TowService() {
 
     setLoading(true);
     try {
-      const requestId = await sendServiceRequest(
-        "Tow Truck",
-        { vehicleSize: selected },
-        {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      // Unified request structure for both online and offline
+      const requestPayload = {
+        userUID: user?.uid || "unknown",
+        userEmail: user?.email || "unknown",
+        serviceType: "Tow Truck",
+        address: (address as string) || "Nablus",
+        location: {
           latitude: parseFloat(lat as string),
           longitude: parseFloat(lng as string),
         },
-        (address as string) || "Nablus",
-      );
+        details: { vehicleSize: selected },
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      };
 
-      router.push({
-        pathname: "/user/waitingScreen",
-        params: { requestId },
-      });
+      // Check connection status
+      const networkState = await Network.getNetworkStateAsync();
+
+      if (!networkState.isConnected || !networkState.isInternetReachable) {
+        // --- OFFLINE PATH ---
+        await saveRequestOffline(requestPayload);
+
+        // Silent redirect: Your _layout banner already shows the offline status
+        router.replace("/(user)/history");
+      } else {
+        // --- ONLINE PATH ---
+        const requestId = await sendServiceRequest(
+          requestPayload.serviceType,
+          requestPayload.details,
+          requestPayload.location,
+          requestPayload.address,
+        );
+
+        router.push({
+          pathname: "/user/waitingScreen",
+          params: { requestId },
+        });
+      }
     } catch (error: any) {
       Alert.alert(
         "Request failed",
@@ -126,7 +157,7 @@ export default function TowService() {
         disabled={isDisabled}
         style={[
           styles.button,
-          { backgroundColor: isDisabled ? "#ccc" : "#ff6b1a" },
+          { backgroundColor: isDisabled ? "#b6b3b3" : "#ff6b1a" },
         ]}
         onPress={handleConfirm}
       >
@@ -137,8 +168,8 @@ export default function TowService() {
             style={{
               color: "white",
               textAlign: "center",
-              fontWeight: "bold",
-              fontSize: 16,
+              fontWeight: "600",
+              fontSize: 14,
             }}
           >
             Confirm
@@ -184,12 +215,12 @@ const styles = StyleSheet.create({
     height: 80,
   },
   button: {
-    position: "absolute",
+    marginTop: 100,
     bottom: 30,
     alignSelf: "center",
     width: "80%",
-    paddingVertical: 18,
     borderRadius: 15,
+    paddingVertical: 18,
     shadowOpacity: 0.1,
     shadowRadius: 5,
   },
