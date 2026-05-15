@@ -69,7 +69,10 @@ const RequestDetails = () => {
       });
 
       if (newStatus === "accepted") {
-        router.push("/shared/request-progress");
+      router.push({
+          pathname: "/shared/request-progress",
+          params: { mode: "provider" }
+        });
       } else {
         router.back();
       }
