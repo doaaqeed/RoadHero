@@ -11,7 +11,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
