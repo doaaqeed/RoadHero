@@ -20,6 +20,7 @@ import {
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
+import CustomInput from "@/components/CustomInput";
 
 const IMGBB_API_KEY = "f8c1bfe3710715a1fe2209d1fa0471b2";
 
@@ -240,7 +241,6 @@ export default function Profile() {
                 control={control}
                 name="fullName"
                 rules={{
-                  required: "Full name is required",
                   minLength: {
                     value: 3,
                     message: "Name must be at least 3 characters",
@@ -250,28 +250,14 @@ export default function Profile() {
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="Full Name"
-                      value={value}
-                      onChangeText={onChange}
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="Email Address"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                  />
                 )}
               />
 
@@ -290,30 +276,17 @@ export default function Profile() {
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="Email Address"
-                      value={value}
-                      editable={false}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="Email Address"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    editable={false}
+                  />
                 )}
               />
 
@@ -326,28 +299,14 @@ export default function Profile() {
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="Current Address"
-                      value={value}
-                      onChangeText={onChange}
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="Current Address"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                  />
                 )}
               />
 
@@ -366,30 +325,14 @@ export default function Profile() {
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="phone number"
-                      value={value}
-                      onChangeText={(text) =>
-                        onChange(text.trim().replace(/[^0-9]/g, ""))
-                      }
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="phone number"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                  />
                 )}
               />
 
@@ -407,29 +350,15 @@ export default function Profile() {
                   field: { onChange, value, onBlur },
                   fieldState: { error, isTouched },
                 }) => (
-                  <View style={{ marginBottom: 30 }}>
-                    <TextInput
-                      placeholder="Leave blank to keep current password"
-                      secureTextEntry
-                      value={value}
-                      onChangeText={onChange}
-                      style={[
-                        styles.input,
-                        {
-                          borderColor: error
-                            ? "red"
-                            : isTouched
-                              ? "green"
-                              : "#ccc",
-                        },
-                      ]}
-                      onBlur={onBlur}
-                      placeholderTextColor="#706e6e"
-                    />
-                    {error && (
-                      <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-                    )}
-                  </View>
+                  <CustomInput
+                    placeholder="Leave blank to keep current password"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={error}
+                    isTouched={isTouched}
+                    secureTextEntry={true}
+                  />
                 )}
               />
 

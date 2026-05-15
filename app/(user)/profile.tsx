@@ -263,6 +263,7 @@ export default function Profile() {
                     onBlur={onBlur}
                     error={error}
                     isTouched={isTouched}
+                    editable={false}
                   />
                 )}
               />
@@ -348,7 +349,7 @@ export default function Profile() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.back()}
+              onPress={() => Alert.alert("The changes were not saved")}
               style={styles.ContinuePress}
             >
               <Text style={styles.ContinueText}>Cancle</Text>

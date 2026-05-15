@@ -12,6 +12,7 @@ const CustomInput = ({
   secureTextEntry,
   keyboardType,
   autoCapitalize,
+  editable = true,
 }) => {
   return (
     <View style={{ marginBottom: 30 }}>
@@ -24,6 +25,7 @@ const CustomInput = ({
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         placeholderTextColor="#706e6e"
+        editable={editable}
         style={[
           styles.input,
           {
@@ -31,9 +33,7 @@ const CustomInput = ({
           },
         ]}
       />
-      { error && (
-        <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>
-      )}
+      {error && <Text style={styles.ERROR_MESSAGES}>{error.message}</Text>}
     </View>
   );
 };
