@@ -17,7 +17,6 @@ import {
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
-
 export default function Register() {
   const [checked, setChecked] = useState(false);
   const router = useRouter();
@@ -46,9 +45,9 @@ export default function Register() {
       });
 
       if (state === "needService") {
-        router.replace("/(user)/");
+        router.replace("/(user)");
       } else if (state === "provideService") {
-        router.replace("/(provider)/");
+        router.replace("/provider/providerSkills");
       }
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
@@ -70,7 +69,6 @@ export default function Register() {
   });
 
   const passwordVar = watch("password");
- 
 
   return (
     <>

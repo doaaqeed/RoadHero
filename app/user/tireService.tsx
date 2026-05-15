@@ -1,12 +1,17 @@
 import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as Network from "expo-network";
 import { router, useLocalSearchParams } from "expo-router";
+import { getAuth } from "firebase/auth";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { saveRequestOffline } from "../../utils/offlineStorage";
+
 import {
   ActivityIndicator,
   Alert,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -34,7 +39,10 @@ export default function TireService() {
   });
 
   const count = watch("count");
+  const vehicle = watch("vehicle");
+  const vehicleType = watch("vehicleType");
 
+  // This function is called by handleSubmit
   const onSubmit = async (data: FormData) => {
     if (!lat || !lng) {
       Alert.alert("Error", "Location data is missing. Please go back.");
@@ -43,24 +51,49 @@ export default function TireService() {
 
     setIsSubmitting(true);
     try {
-      const requestId = await sendServiceRequest(
-        "Tire Service",
-        {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      // Prepare the unified data structure
+      const requestPayload = {
+        userUID: user?.uid || "unknown",
+        userEmail: user?.email || "unknown",
+        serviceType: "Tire Service",
+        address: (address as string) || "Unknown Location",
+        location: {
+          latitude: parseFloat(lat as string),
+          longitude: parseFloat(lng as string),
+        },
+        details: {
           vehicleModel: data.vehicle,
           tireType: data.vehicleType,
           tireCount: data.count,
         },
-        {
-          latitude: parseFloat(lat as string),
-          longitude: parseFloat(lng as string),
-        },
-        (address as string) || "Unknown Location",
-      );
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      };
 
-      router.push({
-        pathname: "/user/waitingScreen",
-        params: { requestId },
-      });
+      // Check Network Status
+      const networkState = await Network.getNetworkStateAsync();
+
+      if (!networkState.isConnected || !networkState.isInternetReachable) {
+        await saveRequestOffline(requestPayload);
+
+        router.replace("/(user)/history");
+      } else {
+        // --- ONLINE LOGIC ---
+        const requestId = await sendServiceRequest(
+          requestPayload.serviceType,
+          requestPayload.details,
+          requestPayload.location,
+          requestPayload.address,
+        );
+
+        router.push({
+          pathname: "/user/waitingScreen",
+          params: { requestId },
+        });
+      }
     } catch (error: any) {
       Alert.alert("Request Failed", error.message || "Something went wrong");
     } finally {
@@ -69,55 +102,35 @@ export default function TireService() {
   };
 
   return (
-    <View style={styles.screen}>
+    <ScrollView style={styles.screen}>
       <View style={styles.card}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 10,
-            marginTop: 120,
-          }}
-        >
+        <View style={styles.header}>
           <MaterialCommunityIcons name="tire" size={40} color="#4FC3F7" />
-          <Text style={{ fontSize: 35, fontWeight: "bold" }}>Tire</Text>
+          <Text style={styles.title}>Tire</Text>
         </View>
 
         <TextInput
           placeholder="Vehicle model (e.g. BMW X5)"
-          value={watch("vehicle")}
+          value={vehicle}
           onChangeText={(text) => setValue("vehicle", text)}
           style={styles.input}
         />
 
         <TextInput
           placeholder="Tire type or Size (e.g. 225/45R17)"
-          value={watch("vehicleType")}
+          value={vehicleType}
           onChangeText={(text) => setValue("vehicleType", text)}
           style={styles.input}
         />
 
-        <Text
-          style={{ fontSize: 20, color: "grey", marginLeft: 10, marginTop: 50 }}
-        >
-          Choose the quantity as your need
-        </Text>
+        <Text style={styles.subLabel}>Choose the quantity as your need</Text>
 
         <View style={styles.counterRow}>
           <View style={styles.iconCircle}>
             <MaterialCommunityIcons name="tire" size={30} color="#4FC3F7" />
           </View>
 
-          <Text
-            style={{
-              fontWeight: "bold",
-              fontSize: 20,
-              marginLeft: 10,
-              flex: 1,
-            }}
-          >
-            Tires Number
-          </Text>
+          <Text style={styles.counterLabel}>Tires Number</Text>
 
           <View style={styles.controls}>
             <Pressable
@@ -139,21 +152,13 @@ export default function TireService() {
         </View>
 
         <Pressable
-          onPress={handleSubmit(onSubmit)}
-          disabled={
-            !watch("vehicle") ||
-            !watch("vehicleType") ||
-            count === 0 ||
-            isSubmitting
-          }
+          onPress={handleSubmit(onSubmit)} // Kept handleSubmit here
+          disabled={!vehicle || !vehicleType || count === 0 || isSubmitting}
           style={[
             styles.button,
             {
               backgroundColor:
-                watch("vehicle") &&
-                watch("vehicleType") &&
-                count > 0 &&
-                !isSubmitting
+                vehicle && vehicleType && count > 0 && !isSubmitting
                   ? "#4FC3F7"
                   : "#b6b3b3",
             },
@@ -162,25 +167,24 @@ export default function TireService() {
           {isSubmitting ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text style={{ color: "white", fontWeight: "600", fontSize: 18 }}>
-              Confirm
-            </Text>
+            <Text style={styles.buttonText}>Confirm</Text>
           )}
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: "white",
+  screen: { flex: 1, backgroundColor: "white" },
+  card: { flex: 1, padding: 20 },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 120,
   },
-  card: {
-    flex: 1,
-    padding: 20,
-  },
+  title: { fontSize: 35, fontWeight: "bold" },
   input: {
     marginTop: 25,
     backgroundColor: "#F5F5F5",
@@ -190,11 +194,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E0E0E0",
   },
-  counterRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 20,
-  },
+  subLabel: { fontSize: 20, color: "grey", marginLeft: 10, marginTop: 50 },
+  counterRow: { flexDirection: "row", alignItems: "center", marginTop: 20 },
   iconCircle: {
     backgroundColor: "#f2f0f0de",
     borderRadius: 30,
@@ -203,11 +204,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  controls: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 20,
-  },
+  counterLabel: { fontWeight: "bold", fontSize: 20, marginLeft: 10, flex: 1 },
+  controls: { flexDirection: "row", alignItems: "center", gap: 20 },
   counterBtn: {
     backgroundColor: "#f5f3f3",
     borderRadius: 10,
@@ -218,10 +216,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#DDD",
   },
-  counterText: {
-    fontSize: 24,
-    color: "#333",
-  },
+  counterText: { fontSize: 24, color: "#333" },
   count: {
     fontSize: 20,
     fontWeight: "bold",
@@ -229,15 +224,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    marginTop: 200,
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 130,
     marginBottom: 30,
     padding: 20,
     borderRadius: 15,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    paddingVertical: 18,
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    paddingVertical: 18,
   },
+  buttonText: { color: "white", fontWeight: "600", fontSize: 14 },
 });

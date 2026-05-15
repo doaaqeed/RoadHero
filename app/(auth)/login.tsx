@@ -1,8 +1,8 @@
-
+import CustomInput from "@/components/CustomInput";
 import { auth, db } from "@/services/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
 import { Link, Stack, useRouter } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { Controller, useForm } from "react-hook-form";
 import {
   KeyboardAvoidingView,
@@ -14,8 +14,6 @@ import {
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-import CustomInput from "@/components/CustomInput";
-
 
 export default function Login() {
   const router = useRouter();
@@ -37,18 +35,13 @@ export default function Login() {
       const userData = userDoc.data();
 
       console.log("Full User Data:", userData);
-      const state= userData?.state;
+      const state = userData?.state;
       console.log("start4");
-      
-      
-
-     
-
 
       if (state === "needService") {
-        router.replace("/(user)/");
+        router.replace("/(user)");
       } else if (state === "provideService") {
-        router.replace("/(provider)/");
+        router.replace("/(provider)");
       }
     } catch (error) {
       console.error(error);
@@ -102,7 +95,7 @@ export default function Login() {
                   onBlur={onBlur}
                   error={error}
                   isTouched={isTouched}
-                  autoCapitalize="none" 
+                  autoCapitalize="none"
                   keyboardType="email-address"
                 />
               )}
@@ -214,7 +207,7 @@ const styles = StyleSheet.create({
   padLeft_9: {
     paddingLeft: RFValue(9),
   },
-  
+
   terms: {
     flexDirection: "row",
   },
@@ -242,5 +235,4 @@ const styles = StyleSheet.create({
   loginLink: {
     color: "#FD6B22",
   },
-  
 });

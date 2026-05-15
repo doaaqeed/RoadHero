@@ -3,7 +3,9 @@ import { HelloWave } from "@/components/hello-wave";
 import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
+import * as Network from "expo-network";
 import { router, Stack } from "expo-router";
+import { getAuth } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,6 +18,7 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { saveRequestOffline } from "../../utils/offlineStorage";
 const services = [
   {
     id: 1,
@@ -217,16 +220,50 @@ export default function HomeScreen() {
                         onPress: async () => {
                           try {
                             setLoading(true);
-                            const requestId = await sendServiceRequest(
-                              item.title,
-                              { note: "Immediate assistance requested" },
-                              markerCoords,
-                              locationName,
-                            );
-                            router.push({
-                              pathname: "/user/waitingScreen",
-                              params: { requestId },
-                            });
+
+                            const auth = getAuth();
+                            const user = auth.currentUser;
+
+                            const requestPayload = {
+                              userUID: user?.uid || "unknown",
+                              userEmail: user?.email || "unknown",
+                              serviceType: item.title,
+                              address: locationName || "Nablus",
+                              location: markerCoords,
+                              details: {
+                                note: "Immediate assistance requested",
+                              },
+                              status: "pending",
+                              createdAt: new Date().toISOString(),
+                            };
+
+                            // Check Network Status
+                            const networkState =
+                              await Network.getNetworkStateAsync();
+
+                            if (
+                              !networkState.isConnected ||
+                              !networkState.isInternetReachable
+                            ) {
+                              // OFFLINE PATH
+                              await saveRequestOffline(requestPayload);
+                              router.replace("/(user)/history");
+                              // No Alert here as you have the global layout banner
+                              setLoading(false);
+                            } else {
+                              // ONLINE PATH
+                              const requestId = await sendServiceRequest(
+                                requestPayload.serviceType,
+                                requestPayload.details,
+                                requestPayload.location,
+                                requestPayload.address,
+                              );
+
+                              router.push({
+                                pathname: "/user/waitingScreen",
+                                params: { requestId },
+                              });
+                            }
                           } catch (error: any) {
                             Alert.alert(
                               "Error",

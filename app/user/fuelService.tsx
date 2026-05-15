@@ -1,6 +1,8 @@
 import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as Network from "expo-network"; // Import network
 import { router, useLocalSearchParams } from "expo-router";
+import { getAuth } from "firebase/auth"; // To get the UID
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -11,7 +13,7 @@ import {
   Text,
   View,
 } from "react-native";
-
+import { saveRequestOffline } from "../../utils/offlineStorage"; // Import your utility
 export default function FuelService() {
   const [count, setCount] = useState(0);
   const [fuel, setFuel] = useState<string | null>(null);
@@ -24,30 +26,55 @@ export default function FuelService() {
     if (!lat || !lng) {
       Alert.alert(
         "Error",
-        "Location data is missing. Please go back and try again.",
+        "Location data is unavailable, please go back and try again.",
       );
       return;
     }
 
     setIsSubmitting(true);
+
     try {
-      const requestId = await sendServiceRequest(
-        "Fuel Delivery",
-        {
-          fuelType: fuel,
-          quantity: count,
-        },
-        {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      const requestData = {
+        userUID: user?.uid || "unknown",
+        userEmail: user?.email || "unknown",
+        serviceType: "Fuel Delivery",
+        address: (address as string) || "Unknown Location",
+        location: {
           latitude: parseFloat(lat as string),
           longitude: parseFloat(lng as string),
         },
-        (address as string) || "Unknown Location",
-      );
+        details: {
+          fuelType: fuel,
+          quantity: count,
+        },
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      };
 
-      router.push({
-        pathname: "/user/waitingScreen",
-        params: { requestId },
-      });
+      // Check Network Status
+      const networkState = await Network.getNetworkStateAsync();
+
+      if (!networkState.isConnected || !networkState.isInternetReachable) {
+        await saveRequestOffline(requestData);
+
+        router.replace("/(user)/history");
+      } else {
+        // ONLINE PATH
+        const requestId = await sendServiceRequest(
+          requestData.serviceType,
+          requestData.details,
+          requestData.location,
+          requestData.address,
+        );
+
+        router.push({
+          pathname: "/user/waitingScreen",
+          params: { requestId },
+        });
+      }
     } catch (error: any) {
       Alert.alert("Request Failed", error.message || "Something went wrong");
     } finally {
@@ -77,7 +104,7 @@ export default function FuelService() {
             onPress={() => setFuel("Gasoline")}
             style={[
               styles.card,
-              fuel === "gasoline" && {
+              fuel === "Gasoline" && {
                 borderColor: "green",
                 borderWidth: 3,
                 backgroundColor: "#E9FCE9",
@@ -90,7 +117,7 @@ export default function FuelService() {
             onPress={() => setFuel("Diesel")}
             style={[
               styles.card,
-              fuel === "diesel" && {
+              fuel === "Diesel" && {
                 borderColor: "green",
                 borderWidth: 3,
                 backgroundColor: "#E9FCE9",
@@ -226,9 +253,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   requestButton: {
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 180,
+    marginLeft: 30,
+    marginRight: 30,
+    marginTop: 100,
     padding: 15,
     borderRadius: 15,
     alignItems: "center",
