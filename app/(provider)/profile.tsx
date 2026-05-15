@@ -1,4 +1,6 @@
+import { PROVIDER_SERVICES } from "@/constants/services"; // Import your file
 import { auth, db } from "@/services/firebaseConfig";
+import Checkbox from "expo-checkbox"; // Added for skills
 import * as ImagePicker from "expo-image-picker";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { signOut, updatePassword } from "firebase/auth";
@@ -25,6 +27,7 @@ export default function Profile() {
   const router = useRouter();
   const { state } = useLocalSearchParams();
   const [imgUrl, setImgurl] = useState(null);
+  const [selectedSkills, setSelectedSkills] = useState([]); // Skills state
 
   const uploadToImgBB = async (fileUri) => {
     const formData = new FormData();
@@ -96,19 +99,6 @@ export default function Profile() {
       uploadToImgBB(localUri);
     }
   };
-  /* 
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-    if (!result.canceled) {
-      setImgurl(result.assets[0].uri);
-      uploadToImgBB(result.assets[0].uri);
-    }
-  };*/
 
   const { control, handleSubmit, reset } = useForm({
     mode: "onBlur",
@@ -121,13 +111,25 @@ export default function Profile() {
     },
   });
 
+  // Toggle skill logic
+  const toggleSkill = (id) => {
+    setSelectedSkills((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
+    );
+  };
+
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
 
       if (user) {
+        // Fetch User Info
         const userRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(userRef);
+
+        // Fetch Provider Skills
+        const providerRef = doc(db, "providers", user.uid);
+        const provSnap = await getDoc(providerRef);
 
         if (docSnap.exists()) {
           const data = docSnap.data();
@@ -142,6 +144,11 @@ export default function Profile() {
             password: "",
           });
         }
+
+        // Set the skills if they exist in the providers collection
+        if (provSnap.exists()) {
+          setSelectedSkills(provSnap.data().skills || []);
+        }
       }
     };
 
@@ -153,16 +160,24 @@ export default function Profile() {
     if (user) {
       try {
         const userRef = doc(db, "users", user.uid);
+        const providerRef = doc(db, "providers", user.uid);
+
+        // Update basic info
         await updateDoc(userRef, {
           fullName: data.fullName,
           address: data.address,
           phoneNumber: data.phoneNumber,
         });
 
+        // Update Skills in providers collection
+        await updateDoc(providerRef, {
+          skills: selectedSkills,
+        });
+
         if (data.password && data.password.trim() !== "") {
           await updatePassword(user, data.password);
         }
-        Alert.alert("Success", "Profile updated successfully!");
+        Alert.alert("Success", "Profile and services updated successfully!");
       } catch (error) {
         console.error(error);
         Alert.alert("Error", "Could not update profile");
@@ -193,6 +208,7 @@ export default function Profile() {
       },
     ]);
   };
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -209,7 +225,7 @@ export default function Profile() {
               style={styles.image}
             />
           </Pressable>
-          <Text style={[styles.edite, styles.edit_m]}>Edite</Text>
+          <Text style={[styles.edite, styles.edit_m]}>Edit</Text>
         </View>
 
         <View style={[styles.secondSection]}>
@@ -218,6 +234,7 @@ export default function Profile() {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <View style={[styles.center]}>
+              {/* [Keeping original teammate syntax for inputs...] */}
               {/* Full Name */}
               <Controller
                 control={control}
@@ -415,6 +432,58 @@ export default function Profile() {
                   </View>
                 )}
               />
+
+              {/* NEW SKILLS SECTION */}
+              <View style={styles.skillsContainer}>
+                <Text style={styles.skillsTitle}>My Services</Text>
+                {PROVIDER_SERVICES.map((item) => (
+                  <Pressable
+                    key={item.id}
+                    style={[
+                      styles.skillCard,
+                      selectedSkills.includes(item.id) &&
+                        styles.selectedSkillCard,
+                    ]}
+                    onPress={() => toggleSkill(item.id)}
+                  >
+                    <View style={styles.skillRow}>
+                      <Checkbox
+                        value={selectedSkills.includes(item.id)}
+                        onValueChange={() => toggleSkill(item.id)}
+                        color={
+                          selectedSkills.includes(item.id)
+                            ? "#f07e41"
+                            : undefined
+                        }
+                      />
+                      <Text style={styles.skillLabel}>{item.label}</Text>
+
+                      {/* Optional: Add icons based on ID if you want them here too */}
+                      {item.id === "tow_pickup" && (
+                        <Image
+                          source={require("@/assets/images/pickup.png")}
+                          style={styles.vehicleImage}
+                          resizeMode="contain"
+                        />
+                      )}
+                      {item.id === "tow_medium" && (
+                        <Image
+                          source={require("@/assets/images/smallTruck.png")}
+                          style={styles.vehicleImage}
+                          resizeMode="contain"
+                        />
+                      )}
+                      {item.id === "tow_large" && (
+                        <Image
+                          source={require("@/assets/images/largeTruck.png")}
+                          style={styles.vehicleImage}
+                          resizeMode="contain"
+                        />
+                      )}
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
             </View>
           </KeyboardAvoidingView>
 
@@ -484,7 +553,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#fcf3f0f5",
   },
-
   input: {
     borderWidth: 1,
     padding: RFValue(20),
@@ -521,5 +589,44 @@ const styles = StyleSheet.create({
   edit_m: {
     marginBottom: 50,
     marginTop: 10,
+  },
+  skillsContainer: {
+    width: RFValue(290),
+    marginTop: 10,
+  },
+  skillsTitle: {
+    fontSize: RFValue(18),
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 15,
+  },
+  skillCard: {
+    backgroundColor: "#FFF",
+    height: RFValue(60),
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#EEE",
+    justifyContent: "center",
+  },
+  selectedSkillCard: {
+    borderColor: "#f07e41",
+    backgroundColor: "#FFF9F6",
+  },
+  skillRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  skillLabel: {
+    fontSize: RFValue(14),
+    flex: 1,
+    marginLeft: 10,
+    color: "#333",
+  },
+  vehicleImage: {
+    width: 60,
+    height: 35,
   },
 });

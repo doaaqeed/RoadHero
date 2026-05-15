@@ -47,7 +47,7 @@ export default function Register() {
       if (state === "needService") {
         router.replace("/(user)");
       } else if (state === "provideService") {
-        router.replace("/(provider)");
+        router.replace("/provider/providerSkills");
       }
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {

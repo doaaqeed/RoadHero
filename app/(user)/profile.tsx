@@ -1,3 +1,4 @@
+import CustomInput from "@/components/CustomInput";
 import { auth, db } from "@/services/firebaseConfig";
 import * as ImagePicker from "expo-image-picker";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -17,10 +18,7 @@ import {
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-import CustomInput from "@/components/CustomInput";
 const IMGBB_API_KEY = "f8c1bfe3710715a1fe2209d1fa0471b2";
-
-
 
 export default function Profile() {
   const router = useRouter();
@@ -210,7 +208,7 @@ export default function Profile() {
               style={styles.image}
             />
           </Pressable>
-          <Text style={[styles.edite, styles.edit_m]}>Edite</Text>
+          <Text style={[styles.edite, styles.edit_m]}>Edit</Text>
         </View>
 
         <View style={[styles.secondSection]}>
@@ -408,7 +406,6 @@ const styles = StyleSheet.create({
     color: "#fcf3f0f5",
   },
 
-  
   ContinuePress: {
     borderWidth: 1,
     borderColor: "#ece4e4",
@@ -424,7 +421,7 @@ const styles = StyleSheet.create({
     fontSize: RFValue(15),
     color: "#ffffff",
   },
- 
+
   image: {
     width: 150,
     height: 150,
