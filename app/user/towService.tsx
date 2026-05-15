@@ -73,10 +73,19 @@ export default function TowService() {
           requestPayload.location,
           requestPayload.address,
         );
-
+        const towMap = {
+          mini: "tow_pickup",
+          pickup: "tow_medium",
+          large: "tow_large",
+        };
         router.push({
           pathname: "/user/waitingScreen",
-          params: { requestId },
+          params: {
+            requestId,
+            serviceTitle: towMap[selected as keyof typeof towMap],
+            userLat: String(lat),
+            userLng: String(lng),
+          },
         });
       }
     } catch (error: any) {

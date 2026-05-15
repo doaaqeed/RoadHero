@@ -1,7 +1,20 @@
-/*import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import Header from "@/components/Header";
+import { db } from "@/services/firebaseConfig";
+import { Ionicons } from "@expo/vector-icons";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
   Linking,
   ScrollView,
   StyleSheet,
@@ -13,302 +26,303 @@ import {
 type Provider = {
   id: string;
   name: string;
-  eta: string;
   rating: number;
-  price: string;
   phone: string;
   bgColor: string;
   iconColor: string;
+  skills: string[];
+  eta: string;
 };
 
-const providers: Provider[] = [
-  {
-    id: "company2",
-    name: "Company 2",
-    eta: "10 minutes",
-    rating: 5,
-    price: "$30",
-    phone: "0599999999",
-    bgColor: "#FCE7F3",
-    iconColor: "#6B7280",
-  },
-  {
-    id: "company1",
-    name: "Company 1",
-    eta: "30 minutes",
-    rating: 3,
-    price: "$22",
-    phone: "0598888888",
-    bgColor: "#DBF3FF",
-    iconColor: "#2563EB",
-  },
-  {
-    id: "company3",
-    name: "Company 3",
-    eta: "25 minutes",
-    rating: 3,
-    price: "$15",
-    phone: "0597777777",
-    bgColor: "#FED7C2",
-    iconColor: "#f07e41",
-  },
-];
+// Updated with your snippets' constants: ROAD_FACTOR & AVG_SPEED_KMH
+const calculateETA = (
+  userLat: number,
+  userLng: number,
+  provLat: number,
+  provLng: number,
+) => {
+  const AVG_SPEED_KMH = 50;
+  const ROAD_FACTOR = 1.25;
+  const R = 6371;
+
+  const dLat = (provLat - userLat) * (Math.PI / 180);
+  const dLon = (provLng - userLng) * (Math.PI / 180);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(userLat * (Math.PI / 180)) *
+      Math.cos(provLat * (Math.PI / 180)) *
+      Math.sin(dLon / 2) ** 2;
+
+  const straightLine = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const mins =
+    Math.round(((straightLine * ROAD_FACTOR) / AVG_SPEED_KMH) * 60) + 5;
+
+  return mins;
+};
 
 export default function ProviderListing() {
-  const { serviceTitle } = useLocalSearchParams();
+  const { requestId, serviceTitle, userLat, userLng } = useLocalSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [availableProviders, setAvailableProviders] = useState<Provider[]>([]);
 
-  const handleRequest = (provider: Provider) => {
-    router.push({
-      pathname: "/shared/request-progress" as any,
-      params: {
-        mode: "user",
+  const handleSelectProvider = async (provider: Provider) => {
+    if (!requestId) {
+      Alert.alert("Error", "Request ID is missing.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await updateDoc(doc(db, "requests", String(requestId)), {
         providerId: provider.id,
         providerName: provider.name,
-        serviceTitle: serviceTitle ?? "",
-      },
-    });
+        providerPhone: provider.phone,
+        status: "assigned",
+        assignedAt: new Date().toISOString(),
+      });
+
+      router.push({
+        pathname: "/shared/request-progress" as any,
+        params: {
+          mode: "user",
+          requestId: String(requestId),
+          providerId: provider.id,
+          providerName: provider.name,
+          serviceTitle: serviceTitle ?? "",
+        },
+      });
+    } catch (error) {
+      console.error("Assignment error:", error);
+      Alert.alert("Error", "Could not assign provider.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCall = (phone: string) => {
-    Linking.openURL(`tel:${phone}`);
+    const cleaned = phone?.replace(/[^\d+]/g, "");
+    if (!cleaned || cleaned.length < 7) {
+      Alert.alert("Unavailable", "This provider has no phone number on file.");
+      return;
+    }
+    Linking.openURL(`tel:${cleaned}`);
   };
 
-  const renderStars = (rating: number) => {
-    return [1, 2, 3, 4, 5].map((star) => (
-      <Ionicons
-        key={star}
-        name="star"
-        size={16}
-        color={star <= rating ? "#f07e41" : "#D1D5DB"}
-      />
-    ));
-  };
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        setLoading(true);
+
+        const q = query(
+          collection(db, "providers"),
+          where("available", "==", true),
+          where("skills", "array-contains", String(serviceTitle)),
+        );
+        const querySnapshot = await getDocs(q);
+        const fetched: Provider[] = [];
+
+        for (const docSnap of querySnapshot.docs) {
+          const data = docSnap.data();
+
+          // Fetch name AND phone from users collection (same doc ID as provider)
+          let fullName = "RoadHero Pro";
+          let phoneNumber = "";
+          try {
+            const userDocSnap = await getDoc(doc(db, "users", docSnap.id));
+            if (userDocSnap.exists()) {
+              const userData = userDocSnap.data();
+              fullName = userData.fullName || fullName;
+              phoneNumber = userData.phoneNumber || userData.phone || "";
+            }
+          } catch (e) {
+            console.warn("Could not fetch user data for provider:", docSnap.id);
+          }
+
+          // ✅ Rating Logic calculation from snippet
+          const ratingsArray: number[] = data.ratings || [];
+          const avgRating = ratingsArray.length
+            ? parseFloat(
+                (
+                  ratingsArray.reduce((s: number, r: number) => s + r, 0) /
+                  ratingsArray.length
+                ).toFixed(1),
+              )
+            : (data.averageRating ?? 5.0);
+
+          // ✅ ETA Logic calculation from snippet
+          let estimatedTime = "Ready";
+          if (data.location && userLat && userLng) {
+            const mins = calculateETA(
+              parseFloat(userLat as string),
+              parseFloat(userLng as string),
+              data.location.latitude,
+              data.location.longitude,
+            );
+            estimatedTime = `${mins} mins`;
+          }
+
+          fetched.push({
+            id: docSnap.id,
+            name: fullName,
+            rating: avgRating, // ✅ Integrated dynamic rating
+            phone: phoneNumber,
+            bgColor: "#F0F4F8",
+            iconColor: "#f07e41",
+            skills: data.skills || [],
+            eta: estimatedTime, // ✅ Integrated updated ETA calculation
+          });
+        }
+
+        setAvailableProviders(fetched);
+      } catch (error) {
+        console.error("Fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProviders();
+  }, [serviceTitle, userLat, userLng]);
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="chevron-back" size={34} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Header title="Choose Provider" showBackButton={true} />
 
       <View style={styles.sheet}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={styles.title}>Provider Listing</Text>
-          <View style={styles.divider} />
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>Available Heroes</Text>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{availableProviders.length}</Text>
+          </View>
+        </View>
 
-          {providers.map((provider) => (
-            <View key={provider.id} style={styles.providerRow}>
-              <View
-                style={[
-                  styles.avatarBox,
-                  { backgroundColor: provider.bgColor },
-                ]}
-              >
-                <Ionicons
-                  name="person-circle"
-                  size={54}
-                  color={provider.iconColor}
-                />
-              </View>
+        {loading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={ORANGE} />
+          </View>
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 40 }}
+          >
+            {availableProviders.map((provider) => (
+              <View key={provider.id} style={styles.providerCard}>
+                <View style={styles.avatarBox}>
+                  <Ionicons name="person" size={30} color={ORANGE} />
+                </View>
 
-              <View style={styles.providerInfo}>
-                <Text style={styles.providerName} numberOfLines={1}>
-                  {provider.name}
-                </Text>
-
-                <Text style={styles.eta} numberOfLines={1}>
-                  ETA : {provider.eta}
-                </Text>
-
-                <View style={styles.ratingPriceRow}>
-                  <View style={styles.starsRow}>
-                    {renderStars(provider.rating)}
+                <View style={styles.infoCol}>
+                  <Text style={styles.providerName}>{provider.name}</Text>
+                  <View style={styles.metaRow}>
+                    <Ionicons name="star" size={14} color="#FFD700" />
+                    <Text style={styles.ratingText}>
+                      {provider.rating.toFixed(1)}
+                    </Text>
+                    <Text style={styles.dot}>•</Text>
+                    <Text style={styles.etaText}>🕒 {provider.eta}</Text>
                   </View>
-                  <Text style={styles.price}>{provider.price}</Text>
+                </View>
+
+                <View style={styles.actionCol}>
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    onPress={() => handleSelectProvider(provider)}
+                  >
+                    <Text style={styles.requestBtnText}>Request</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.actionBtn, styles.callBtnVariant]}
+                    onPress={() => handleCall(provider.phone)}
+                  >
+                    <Ionicons name="call" size={16} color={ORANGE} />
+                    <Text style={styles.callBtnText}>Call</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-
-              <View style={styles.buttonsWrap}>
-                <TouchableOpacity
-                  style={styles.requestButton}
-                  onPress={() => handleRequest(provider)}
-                >
-                  <Text style={styles.requestText}>Request</Text>
-                  <Ionicons name="chevron-forward" size={17} color="#2563EB" />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.callButton}
-                  onPress={() => handleCall(provider.phone)}
-                >
-                  <Text style={styles.callText}>Call</Text>
-                  <Ionicons name="call" size={16} color="#EA580C" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
+            ))}
+          </ScrollView>
+        )}
       </View>
     </View>
   );
 }
 
-const ORANGE = "#EA580C";
-const BLUE = "#2563EB";
+const ORANGE = "#f07e41";
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: ORANGE,
-  },
-
-  header: {
-    height: 230,
-    backgroundColor: "#f07e41",
-    paddingTop: 58,
-    paddingHorizontal: 28,
-  },
-
-  backButton: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  bell: {
-    position: "absolute",
-    right: 34,
-    top: 105,
-  },
-
-  headerTitle: {
-    color: "#fff",
-    fontSize: 32,
-    fontWeight: "900",
-    textAlign: "center",
-    marginTop: 38,
-  },
-
+  container: { flex: 1, backgroundColor: ORANGE },
   sheet: {
     flex: 1,
     backgroundColor: "#fff",
-    borderTopLeftRadius: 34,
-    borderTopRightRadius: 34,
-    paddingHorizontal: 22,
-    paddingTop: 54,
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+    paddingHorizontal: 20,
+    paddingTop: 30,
   },
-
-  title: {
-    fontSize: 30,
-    fontWeight: "900",
-    color: "#111827",
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: "#E5E7EB",
-    marginTop: 28,
-  },
-
-  providerRow: {
+  titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-  },
-
-  avatarBox: {
-    width: 76,
-    height: 76,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 14,
-  },
-
-  providerInfo: {
-    flex: 1,
-    minWidth: 0,
-    paddingRight: 8,
-  },
-
-  providerName: {
-    fontSize: 21,
-    fontWeight: "900",
-    color: "#111827",
-  },
-
-  eta: {
-    fontSize: 15,
-    color: "#8B8B8B",
-    marginTop: 4,
-  },
-
-  ratingPriceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 9,
-  },
-
-  starsRow: {
-    flexDirection: "row",
-    marginRight: 10,
-  },
-
-  price: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: ORANGE,
-  },
-
-  buttonsWrap: {
-    width: 108,
     gap: 10,
-    alignItems: "flex-end",
+    marginBottom: 25,
   },
-
-  requestButton: {
-    width: 104,
-    height: 42,
-    borderRadius: 21,
-    borderWidth: 3,
-    borderColor: BLUE,
+  title: { fontSize: 22, fontWeight: "800", color: "#1E293B" },
+  badge: {
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  badgeText: { color: "#64748B", fontWeight: "bold" },
+  providerCard: {
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    padding: 16,
+    marginBottom: 16,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 3,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    elevation: 2,
   },
-
-  requestText: {
-    fontSize: 13,
-    fontWeight: "900",
-    color: "#111827",
-  },
-
-  callButton: {
-    width: 104,
-    height: 42,
-    borderRadius: 21,
-    borderWidth: 3,
-    borderColor: "#f07e41",
-    flexDirection: "row",
+  avatarBox: {
+    width: 55,
+    height: 55,
+    borderRadius: 16,
+    backgroundColor: "#FFF7ED",
     alignItems: "center",
     justifyContent: "center",
-    gap: 7,
   },
-
-  callText: {
+  infoCol: { flex: 1, marginLeft: 15 },
+  providerName: { fontSize: 16, fontWeight: "700", color: "#1E293B" },
+  metaRow: { flexDirection: "row", alignItems: "center", marginTop: 4 },
+  ratingText: {
     fontSize: 14,
-    fontWeight: "900",
-    color: "#111827",
+    fontWeight: "600",
+    color: "#475569",
+    marginLeft: 4,
   },
+  dot: { marginHorizontal: 8, color: "#CBD5E1" },
+  etaText: { fontSize: 13, color: "#64748B", fontWeight: "500" },
+  actionCol: { alignItems: "center", gap: 8 },
+  actionBtn: {
+    backgroundColor: ORANGE,
+    width: 90,
+    height: 36,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  callBtnVariant: {
+    backgroundColor: "#FFF7ED",
+    borderWidth: 1,
+    borderColor: ORANGE,
+    flexDirection: "row",
+    gap: 5,
+  },
+  requestBtnText: { color: "#fff", fontWeight: "bold", fontSize: 13 },
+  callBtnText: { color: ORANGE, fontWeight: "bold", fontSize: 13 },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
 });
-*/

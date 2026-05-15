@@ -91,7 +91,12 @@ export default function TireService() {
 
         router.push({
           pathname: "/user/waitingScreen",
-          params: { requestId },
+          params: {
+            requestId,
+            serviceTitle: "tire_change",
+            userLat: String(lat),
+            userLng: String(lng),
+          },
         });
       }
     } catch (error: any) {

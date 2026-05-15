@@ -69,10 +69,15 @@ export default function FuelService() {
           requestData.location,
           requestData.address,
         );
-
+        const serviceId = fuel === "Gasoline" ? "fuel_petrol" : "fuel_diesel";
         router.push({
           pathname: "/user/waitingScreen",
-          params: { requestId },
+          params: {
+            requestId,
+            serviceTitle: serviceId,
+            userLat: String(lat),
+            userLng: String(lng),
+          },
         });
       }
     } catch (error: any) {

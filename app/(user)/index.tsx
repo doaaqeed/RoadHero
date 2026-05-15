@@ -135,7 +135,7 @@ export default function HomeScreen() {
           headerLeft: () => null,
         }}
       />
-      <Header title="Home Screen" />
+      <Header title="Home Screen" showNotification={true} />
 
       <ScrollView style={styles.screen}>
         <View style={styles.container}>
@@ -251,6 +251,10 @@ export default function HomeScreen() {
                               // No Alert here as you have the global layout banner
                               setLoading(false);
                             } else {
+                              const serviceIdMap: Record<string, string> = {
+                                "On-site Mechanic": "mechanic",
+                                "Jump Start": "jump_start",
+                              };
                               // ONLINE PATH
                               const requestId = await sendServiceRequest(
                                 requestPayload.serviceType,
@@ -258,10 +262,16 @@ export default function HomeScreen() {
                                 requestPayload.location,
                                 requestPayload.address,
                               );
-
+                              const finalServiceTitle =
+                                serviceIdMap[item.title] || item.title;
                               router.push({
                                 pathname: "/user/waitingScreen",
-                                params: { requestId },
+                                params: {
+                                  requestId,
+                                  serviceTitle: finalServiceTitle,
+                                  userLat: markerCoords.latitude.toString(),
+                                  userLng: markerCoords.longitude.toString(),
+                                },
                               });
                             }
                           } catch (error: any) {
