@@ -49,7 +49,6 @@ export const useBroadcastTimer = (
     } catch (e) {
       console.error("Timeout update failed", e);
     }
-    router.push("/user/requestPending");
   };
 
   return { timeLeft, isAccepted };
