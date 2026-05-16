@@ -27,6 +27,9 @@ const STATUS_STYLES: Record<
   rejected: { bg: "#FFEBEE", text: "#C62828" },
 };
 
+// Global safe fallback config to prevent object property access crashes
+const DEFAULT_STATUS_STYLE = { bg: "#E3F2FD", text: "#1E88E5" };
+
 export default function HistoryScreen() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,13 +42,13 @@ export default function HistoryScreen() {
       if (!user) return;
 
       const offlineData = await getOfflineRequests();
-      const formattedOffline = offlineData.map((req: any) => ({
+      const formattedOffline = (offlineData || []).map((req: any) => ({
         ...req,
-        id: `offline-${req.id}`,
+        id: `offline-${req.id || Math.random().toString()}`,
         status: "offline",
       }));
 
-      // 2. Fetch Online Requests from Firebase
+      // Fetch Online Requests from Firebase
       const q = query(
         collection(db, "requests"),
         where("userUID", "==", user.uid),
@@ -54,9 +57,13 @@ export default function HistoryScreen() {
       const querySnapshot = await getDocs(q);
       const onlineData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
+
+        // Safely parse timestamps regardless of string vs Firestore Timestamp object formats
         const date = data.createdAt?.toDate
           ? data.createdAt.toDate()
-          : new Date(data.createdAt);
+          : data.createdAt
+            ? new Date(data.createdAt)
+            : new Date();
 
         return {
           id: doc.id,
@@ -67,7 +74,10 @@ export default function HistoryScreen() {
 
       setRequests([...formattedOffline, ...onlineData]);
     } catch (error) {
-      console.error("Error fetching history:", error);
+      console.error(
+        "Error fetching history history tracking data logs:",
+        error,
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -85,28 +95,32 @@ export default function HistoryScreen() {
 
   const renderItem = ({ item }: { item: any }) => {
     const currentStatus = item.status?.toLowerCase() || "pending";
-    const statusConfig = STATUS_STYLES[currentStatus];
+    // Fixed: Fallback onto default style options objects if status layout doesn't map directly
+    const statusConfig = STATUS_STYLES[currentStatus] || DEFAULT_STATUS_STYLE;
 
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={styles.serviceTitle}>{item.serviceType}</Text>
+          <Text style={styles.serviceTitle}>
+            {item.serviceType || "Unknown Service"}
+          </Text>
           <View
             style={[styles.statusBadge, { backgroundColor: statusConfig.bg }]}
           >
             <Text style={[styles.statusText, { color: statusConfig.text }]}>
-              {statusConfig.label || item.status}
+              {statusConfig.label || item.status || "Pending"}
             </Text>
           </View>
         </View>
 
         <Text style={styles.addressText} numberOfLines={1}>
           <MaterialCommunityIcons name="map-marker" size={14} color="gray" />{" "}
-          {item.address}
+          {item.address || "No Location Specified"}
         </Text>
 
         <Text style={styles.dateText}>
-          {item.displayDate || new Date(item.createdAt).toLocaleString()}{" "}
+          {item.displayDate ||
+            (item.createdAt ? new Date(item.createdAt).toLocaleString() : "")}
         </Text>
       </View>
     );
