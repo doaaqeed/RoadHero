@@ -28,7 +28,8 @@ export default function ServiceRequests() {
       } catch (e) {
         console.log("ERROR:", e);
       }
-    };
+    };   
+    
 
     loadRequests();
   }, [serviceTitle]);

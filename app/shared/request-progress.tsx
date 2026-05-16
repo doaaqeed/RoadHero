@@ -1,3 +1,4 @@
+import Header from "@/components/Header";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
@@ -16,26 +17,11 @@ type TimelineStep = {
 };
 
 const steps: TimelineStep[] = [
-  {
-    title: "Request sent",
-    time: "09:10 AM",
-  },
-  {
-    title: "Provider accepted",
-    time: "09:18 AM",
-  },
-  {
-    title: "On the way",
-    time: "09:41 AM",
-  },
-  {
-    title: "Arrived at location",
-    time: "ETA 7 min",
-  },
-  {
-    title: "Issue fixed",
-    time: "Pending",
-  },
+  { title: "Request sent", time: "09:10 AM" },
+  { title: "Provider accepted", time: "09:18 AM" },
+  { title: "On the way", time: "09:41 AM" },
+  { title: "Arrived at location", time: "ETA 7 min" },
+  { title: "Issue fixed", time: "Pending" },
 ];
 
 function TimelineItem({
@@ -73,10 +59,7 @@ function TimelineItem({
 
         {!last && (
           <View
-            style={[
-              styles.line,
-              done ? styles.lineDone : styles.linePending,
-            ]}
+            style={[styles.line, done ? styles.lineDone : styles.linePending]}
           />
         )}
       </View>
@@ -106,44 +89,31 @@ export default function RequestProgressScreen() {
 
   const handleStepPress = (index: number) => {
     if (!isProvider) return;
-
     setCurrentStep(index);
   };
 
   return (
     <SafeAreaView style={styles.safe}>
+      <Header title="Request Progress" />
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={{ paddingBottom: 28 }}
         showsVerticalScrollIndicator={false}
       >
-       
-<View style={styles.mainContent}>
-  <Text style={styles.pageTitle}>Request Progress</Text>
-
- 
-</View>
-
         <View style={styles.mainContent}>
-          
-          <View style={styles.liveCard}>
-            <View style={styles.liveRowTop}>
+          <View style={styles.statusCard}>
+            <View style={styles.statusRowTop}>
               <View>
-                <Text style={[styles.smallMuted, { color: "#000" }]}>
-                  Current status
-                </Text>
+                <Text style={styles.smallMuted}>Current status</Text>
 
-                <Text style={[styles.liveTitle, { color: "#000" }]}>
-                  {currentStatus}
-                </Text>
+                <Text style={styles.statusTitle}>{currentStatus}</Text>
               </View>
             </View>
 
             <View style={styles.progressBox}>
               <View style={styles.progressHeader}>
-                <Text style={[styles.progressLabel, { color: "#000" }]}>
-                  progress
-                </Text>
+                <Text style={styles.progressLabel}>progress</Text>
 
                 <Text style={styles.progressPercent}>
                   {Math.round(progressPercent)}%
@@ -156,7 +126,6 @@ export default function RequestProgressScreen() {
                     styles.progressFill,
                     {
                       width: `${progressPercent}%`,
-                      backgroundColor: "#fff",
                     },
                   ]}
                 />
@@ -204,6 +173,7 @@ export default function RequestProgressScreen() {
 }
 
 const ORANGE = "#ff7a1a";
+const LIGHT_ORANGE = "#FFEDD5";
 
 const styles = StyleSheet.create({
   safe: {
@@ -216,56 +186,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#ececec",
   },
 
-  topDarkHeader: {
-    backgroundColor: "#EA580C",
-    height: 110,
-    borderBottomLeftRadius: 22,
-    borderBottomRightRadius: 22,
-    paddingHorizontal: 20,
-    paddingTop: 22,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-
-  headerTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "700",
-  },
-
-  pageTitle: {
-    fontSize: 28,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 18,
-  },
-
   mainContent: {
     paddingHorizontal: 16,
     marginTop: 14,
   },
 
-  liveCard: {
-    backgroundColor: "#FFEDD5",
+  statusCard: {
+    backgroundColor: LIGHT_ORANGE,
     borderRadius: 26,
     padding: 16,
   },
 
-  liveRowTop: {
+  statusRowTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 14,
   },
 
   smallMuted: {
-    color: "#a1a1aa",
+    color: "#000",
     fontSize: 13,
     marginBottom: 4,
   },
 
-  liveTitle: {
-    color: "#fff",
+  statusTitle: {
+    color: "#000",
     fontSize: 24,
     fontWeight: "800",
     width: "85%",
@@ -273,7 +218,7 @@ const styles = StyleSheet.create({
 
   progressBox: {
     marginTop: 16,
-    backgroundColor: "#c3e2c3ff",
+    backgroundColor: LIGHT_ORANGE,
     borderRadius: 18,
     padding: 14,
   },
@@ -284,7 +229,7 @@ const styles = StyleSheet.create({
   },
 
   progressLabel: {
-    color: "#c9c9cf",
+    color: "#000",
     fontSize: 14,
   },
 
@@ -297,13 +242,14 @@ const styles = StyleSheet.create({
   progressTrack: {
     height: 8,
     borderRadius: 999,
-    backgroundColor: "#3a4255",
+    backgroundColor: "#f5c39b",
     marginTop: 12,
     overflow: "hidden",
   },
 
   progressFill: {
     height: "100%",
+    backgroundColor: "#fff",
     borderRadius: 999,
   },
 
