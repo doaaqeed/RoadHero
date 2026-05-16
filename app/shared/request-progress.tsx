@@ -1,8 +1,14 @@
 import Header from "@/components/Header";
 import { db } from "@/services/firebaseConfig";
 import { Ionicons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 import { useLocalSearchParams } from "expo-router";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  GeoPoint,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
   Pressable,
@@ -12,13 +18,9 @@ import {
   Text,
   View,
 } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 
-type TimelineStep = {
-  title: string;
-  status: string;
-};
-
-const steps: TimelineStep[] = [
+const steps = [
   { title: "Request sent", status: "assigned" },
   { title: "Provider accepted", status: "accepted" },
   { title: "On the way", status: "on_the_way" },
@@ -31,92 +33,83 @@ const getStepIndex = (status: string) => {
   return index === -1 ? 0 : index;
 };
 
-function TimelineItem({
-  title,
-  done,
-  last = false,
-  clickable,
-  onPress,
-}: {
-  title: string;
-  done: boolean;
-  last?: boolean;
-  clickable: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      disabled={!clickable}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.timelineRow,
-        clickable && pressed && styles.timelineRowPressed,
-      ]}
-    >
-      <View style={styles.timelineLeft}>
-        <View style={[styles.dot, done ? styles.dotDone : styles.dotPending]}>
-          {done ? (
-            <Ionicons name="checkmark" size={16} color="#fff" />
-          ) : (
-            <View style={styles.innerPendingDot} />
-          )}
-        </View>
-
-        {!last && (
-          <View
-            style={[styles.line, done ? styles.lineDone : styles.linePending]}
-          />
-        )}
-      </View>
-
-      <View style={styles.timelineTextWrap}>
-        <Text style={styles.timelineTitle}>{title}</Text>
-        <Text style={styles.timelineTime}>{done ? "Done" : "Waiting"}</Text>
-
-        {clickable && !done && (
-          <Text style={styles.tapHint}>Tap to mark this step</Text>
-        )}
-      </View>
-    </Pressable>
-  );
-}
-
 export default function RequestProgressScreen() {
   const { requestId, mode } = useLocalSearchParams();
-
   const isProvider = mode === "provider";
 
   const [status, setStatus] = useState("assigned");
-  const [loading, setLoading] = useState(true);
+
+  const [userLocation, setUserLocation] = useState<any>(null);
+  const [providerLocation, setProviderLocation] = useState<any>(null);
 
   const currentStep = getStepIndex(status);
   const progressPercent = ((currentStep + 1) / steps.length) * 100;
   const currentStatus = steps[currentStep]?.title || "Request sent";
 
   useEffect(() => {
-    const loadRequestProgress = async () => {
-      if (!requestId) {
-        setLoading(false);
+    if (!requestId) return;
+
+    const ref = doc(db, "requests", String(requestId));
+
+    const unsubscribe = onSnapshot(ref, (snap) => {
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+
+      setStatus(data.status || "assigned");
+
+      if (data.location) {
+        setUserLocation({
+          latitude: data.location.latitude,
+          longitude: data.location.longitude,
+        });
+      }
+
+      if (data.providerLocation) {
+        setProviderLocation({
+          latitude: data.providerLocation.latitude,
+          longitude: data.providerLocation.longitude,
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [requestId]);
+
+  useEffect(() => {
+    if (!isProvider || status !== "on_the_way" || !requestId) return;
+
+    let interval: any;
+
+    const startProviderLocationUpdates = async () => {
+      const { status: permission } =
+        await Location.requestForegroundPermissionsAsync();
+
+      if (permission !== "granted") {
+        alert("Location permission is needed to update provider location.");
         return;
       }
 
-      try {
-        const ref = doc(db, "requests", String(requestId));
-        const snap = await getDoc(ref);
+      interval = setInterval(async () => {
+        const loc = await Location.getCurrentPositionAsync({});
 
-        if (snap.exists()) {
-          const data = snap.data();
-          setStatus(data.status || "assigned");
-        }
-      } catch (error) {
-        console.log("Error loading request progress:", error);
-      } finally {
-        setLoading(false);
-      }
+        const ref = doc(db, "requests", String(requestId));
+
+        await updateDoc(ref, {
+          providerLocation: new GeoPoint(
+            loc.coords.latitude,
+            loc.coords.longitude
+          ),
+        });
+      }, 5000);
     };
 
-    loadRequestProgress();
-  }, [requestId]);
+    startProviderLocationUpdates();
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isProvider, status, requestId]);
 
   const updateProgress = async (newStatus: string) => {
     if (!isProvider) return;
@@ -126,18 +119,11 @@ export default function RequestProgressScreen() {
       return;
     }
 
-    try {
-      const ref = doc(db, "requests", String(requestId));
+    const ref = doc(db, "requests", String(requestId));
 
-      await updateDoc(ref, {
-        status: newStatus,
-      });
-
-      setStatus(newStatus);
-    } catch (error) {
-      console.log("Error updating request progress:", error);
-      alert("Failed to update progress.");
-    }
+    await updateDoc(ref, {
+      status: newStatus,
+    });
   };
 
   return (
@@ -151,20 +137,12 @@ export default function RequestProgressScreen() {
       >
         <View style={styles.mainContent}>
           <View style={styles.statusCard}>
-            <View style={styles.statusRowTop}>
-              <View>
-                <Text style={styles.smallMuted}>Current status</Text>
-
-                <Text style={styles.statusTitle}>
-                  {loading ? "Loading..." : currentStatus}
-                </Text>
-              </View>
-            </View>
+            <Text style={styles.smallMuted}>Current status</Text>
+            <Text style={styles.statusTitle}>{currentStatus}</Text>
 
             <View style={styles.progressBox}>
               <View style={styles.progressHeader}>
                 <Text style={styles.progressLabel}>progress</Text>
-
                 <Text style={styles.progressPercent}>
                   {Math.round(progressPercent)}%
                 </Text>
@@ -174,44 +152,110 @@ export default function RequestProgressScreen() {
                 <View
                   style={[
                     styles.progressFill,
-                    {
-                      width: `${progressPercent}%`,
-                    },
+                    { width: `${progressPercent}%` },
                   ]}
                 />
               </View>
 
               <Text style={styles.locationText}>
                 {isProvider
-                  ? "Tap a timeline step to update this request"
-                  : "Waiting for provider updates"}
+                  ? "Tap steps to update the request"
+                  : "Watching provider updates live"}
               </Text>
             </View>
           </View>
 
-          <View style={styles.timelineCard}>
-            <View style={styles.timelineHeaderRow}>
-              <View>
-                <Text style={styles.sectionTitle}>Tracking timeline</Text>
+          <View style={styles.mapCard}>
+            <Text style={styles.mapTitle}>Live Location</Text>
 
-                <Text style={styles.sectionSubtitle}>
-                  {isProvider
-                    ? "Updates will be saved to Firebase"
-                    : "Progress updates from the provider"}
-                </Text>
-              </View>
-            </View>
+            {userLocation ? (
+              <MapView
+                style={styles.map}
+                region={{
+                  latitude:
+                    providerLocation?.latitude || userLocation.latitude,
+                  longitude:
+                    providerLocation?.longitude || userLocation.longitude,
+                  latitudeDelta: 0.02,
+                  longitudeDelta: 0.02,
+                }}
+                scrollEnabled={false}
+                zoomEnabled={false}
+              >
+                <Marker coordinate={userLocation} title="User location" />
+
+                {providerLocation && (
+                  <Marker
+                    coordinate={providerLocation}
+                    title="Provider location"
+                    pinColor="orange"
+                  />
+                )}
+              </MapView>
+            ) : (
+              <Text style={styles.emptyMap}>Loading location...</Text>
+            )}
+          </View>
+
+          <View style={styles.timelineCard}>
+            <Text style={styles.sectionTitle}>Tracking timeline</Text>
+
+            <Text style={styles.sectionSubtitle}>
+              {isProvider
+                ? "Tap steps to update Firebase"
+                : "Updated by the provider"}
+            </Text>
 
             <View style={{ marginTop: 18 }}>
               {steps.map((step, index) => (
-                <TimelineItem
+                <Pressable
                   key={step.status}
-                  title={step.title}
-                  done={index <= currentStep}
-                  last={index === steps.length - 1}
-                  clickable={isProvider}
+                  disabled={!isProvider}
                   onPress={() => updateProgress(step.status)}
-                />
+                  style={({ pressed }) => [
+                    styles.timelineRow,
+                    isProvider && pressed && styles.timelineRowPressed,
+                  ]}
+                >
+                  <View style={styles.timelineLeft}>
+                    <View
+                      style={[
+                        styles.dot,
+                        index <= currentStep
+                          ? styles.dotDone
+                          : styles.dotPending,
+                      ]}
+                    >
+                      {index <= currentStep ? (
+                        <Ionicons name="checkmark" size={16} color="#fff" />
+                      ) : (
+                        <View style={styles.innerPendingDot} />
+                      )}
+                    </View>
+
+                    {index !== steps.length - 1 && (
+                      <View
+                        style={[
+                          styles.line,
+                          index <= currentStep
+                            ? styles.lineDone
+                            : styles.linePending,
+                        ]}
+                      />
+                    )}
+                  </View>
+
+                  <View style={styles.timelineTextWrap}>
+                    <Text style={styles.timelineTitle}>{step.title}</Text>
+                    <Text style={styles.timelineTime}>
+                      {index <= currentStep ? "Done" : "Waiting"}
+                    </Text>
+
+                    {isProvider && index > currentStep && (
+                      <Text style={styles.tapHint}>Tap to mark this step</Text>
+                    )}
+                  </View>
+                </Pressable>
               ))}
             </View>
           </View>
@@ -246,12 +290,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 
-  statusRowTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 14,
-  },
-
   smallMuted: {
     color: "#000",
     fontSize: 13,
@@ -262,7 +300,6 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: 24,
     fontWeight: "800",
-    width: "85%",
   },
 
   progressBox: {
@@ -308,17 +345,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
+  mapCard: {
+    marginTop: 16,
+    backgroundColor: "#fff",
+    borderRadius: 26,
+    padding: 16,
+  },
+
+  mapTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 12,
+  },
+
+  map: {
+    height: 180,
+    borderRadius: 18,
+  },
+
+  emptyMap: {
+    color: "#6B7280",
+    fontWeight: "600",
+  },
+
   timelineCard: {
     marginTop: 16,
     backgroundColor: "#f4f4f5",
     borderRadius: 26,
     padding: 16,
-  },
-
-  timelineHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
   },
 
   sectionTitle: {
