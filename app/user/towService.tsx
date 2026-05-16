@@ -1,20 +1,21 @@
+import Header from "@/components/Header";
 import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import * as Network from "expo-network"; // Added Network import
+import * as Network from "expo-network";
 import { router, useLocalSearchParams } from "expo-router";
-import { getAuth } from "firebase/auth"; // Added for user data
+import { getAuth } from "firebase/auth";
 import { useState } from "react";
-import { saveRequestOffline } from "../../utils/offlineStorage"; // Added SQLite utility
-
 import {
   ActivityIndicator,
   Alert,
   Image,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { saveRequestOffline } from "../../utils/offlineStorage";
 
 export default function TowService() {
   const [selected, setSelected] = useState<string | null>(null);
@@ -41,7 +42,6 @@ export default function TowService() {
       const auth = getAuth();
       const user = auth.currentUser;
 
-      // Unified request structure for both online and offline
       const requestPayload = {
         userUID: user?.uid || "unknown",
         userEmail: user?.email || "unknown",
@@ -56,17 +56,12 @@ export default function TowService() {
         createdAt: new Date().toISOString(),
       };
 
-      // Check connection status
       const networkState = await Network.getNetworkStateAsync();
 
       if (!networkState.isConnected || !networkState.isInternetReachable) {
-        // --- OFFLINE PATH ---
         await saveRequestOffline(requestPayload);
-
-        // Silent redirect: Your _layout banner already shows the offline status
         router.replace("/(user)/history");
       } else {
-        // --- ONLINE PATH ---
         const requestId = await sendServiceRequest(
           requestPayload.serviceType,
           requestPayload.details,
@@ -99,93 +94,89 @@ export default function TowService() {
   };
 
   return (
-    <View style={styles.screen}>
-      <View style={{ margin: 20 }}>
-        <View style={styles.container}>
-          <MaterialCommunityIcons name="truck" size={40} color="#ff6b1a" />
-          <Text style={{ fontSize: 35, fontWeight: "bold" }}>Tow Truck</Text>
-        </View>
+    <>
+      <Header title="Tow Truck Delivery" showBackButton={true} />
 
-        <Text
-          style={{
-            fontSize: 20,
-            color: "grey",
-            marginTop: 20,
-            marginBottom: 40,
-          }}
-        >
-          Choose vehicle type as your need
-        </Text>
-
-        <View style={styles.cardsContainer}>
-          <Pressable
-            onPress={() => setSelected("mini")}
-            style={[styles.card, selected === "mini" && styles.selectedCard]}
-          >
-            <Image
-              source={require("@/assets/images/smallTruck.png")}
-              style={styles.image}
-              resizeMode="contain"
-            />
-            <Text style={{ marginTop: 10, fontWeight: "bold" }}>
-              Mini Truck
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => setSelected("pickup")}
-            style={[styles.card, selected === "pickup" && styles.selectedCard]}
-          >
-            <Image
-              source={require("@/assets/images/pickup.png")}
-              style={styles.image}
-              resizeMode="contain"
-            />
-            <Text style={{ marginTop: 10, fontWeight: "bold" }}>Pickup</Text>
-          </Pressable>
-        </View>
-
-        <View style={{ alignItems: "center" }}>
-          <Pressable
-            onPress={() => setSelected("large")}
-            style={[styles.card, selected === "large" && styles.selectedCard]}
-          >
-            <Image
-              source={require("@/assets/images/largeTruck.png")}
-              style={styles.image}
-              resizeMode="contain"
-            />
-            <Text style={{ marginTop: 10, fontWeight: "bold" }}>
-              Large Truck
-            </Text>
-          </Pressable>
-        </View>
-      </View>
-
-      <Pressable
-        disabled={isDisabled}
-        style={[
-          styles.button,
-          { backgroundColor: isDisabled ? "#b6b3b3" : "#ff6b1a" },
-        ]}
-        onPress={handleConfirm}
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={{ alignItems: "center" }}
       >
-        {loading ? (
-          <ActivityIndicator color="white" />
-        ) : (
+        <View style={{ width: "100%", maxWidth: 500, paddingBottom: 40 }}>
+          <View style={styles.container}>
+            <MaterialCommunityIcons name="truck" size={40} color="#f07e41" />
+            <Text style={{ fontSize: 35, fontWeight: "bold" }}>Tow Truck</Text>
+          </View>
+
           <Text
             style={{
-              color: "white",
-              textAlign: "center",
-              fontWeight: "600",
-              fontSize: 14,
+              fontSize: 20,
+              color: "grey",
+              marginLeft: 25,
+              marginTop: 20,
+              marginBottom: 30,
             }}
           >
-            Confirm
+            Choose vehicle type as your need
           </Text>
-        )}
-      </Pressable>
-    </View>
+
+          <View style={styles.cardsContainer}>
+            <Pressable
+              onPress={() => setSelected("mini")}
+              style={[styles.card, selected === "mini" && styles.selectedCard]}
+            >
+              <Image
+                source={require("@/assets/images/smallTruck.png")}
+                style={styles.image}
+                resizeMode="contain"
+              />
+              <Text style={styles.cardText}>Mini Truck</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setSelected("pickup")}
+              style={[
+                styles.card,
+                selected === "pickup" && styles.selectedCard,
+              ]}
+            >
+              <Image
+                source={require("@/assets/images/pickup.png")}
+                style={styles.image}
+                resizeMode="contain"
+              />
+              <Text style={styles.cardText}>Pickup</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setSelected("large")}
+              style={[styles.card, selected === "large" && styles.selectedCard]}
+            >
+              <Image
+                source={require("@/assets/images/largeTruck.png")}
+                style={styles.image}
+                resizeMode="contain"
+              />
+              <Text style={styles.cardText}>Large Truck</Text>
+            </Pressable>
+          </View>
+
+          <Pressable
+            disabled={isDisabled}
+            style={[
+              styles.button,
+              { backgroundColor: isDisabled ? "#b6b3b3" : "#f07e41" },
+            ]}
+            onPress={handleConfirm}
+          >
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.buttonText}>Confirm</Text>
+            )}
+          </Pressable>
+        </View>
+      </ScrollView>
+    </>
   );
 }
 
@@ -195,42 +186,58 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   container: {
-    marginTop: 120,
+    marginTop: 30,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 15,
+    marginLeft: 25,
   },
   cardsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
+    flexWrap: "wrap",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    gap: 16,
   },
   card: {
     width: "45%",
     borderRadius: 20,
-    padding: 15,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#bbb5b5",
     backgroundColor: "#fff",
   },
   selectedCard: {
-    borderColor: "#ff6b1a",
-    borderWidth: 2,
-    backgroundColor: "#fff7f2",
+    borderColor: "#f07e41",
+    borderWidth: 3,
+    backgroundColor: "#FFF7ED",
+  },
+  cardText: {
+    marginTop: 10,
+    fontWeight: "bold",
+    fontSize: 16,
+    color: "#333",
   },
   image: {
     width: 100,
     height: 80,
   },
   button: {
-    marginTop: 100,
-    bottom: 30,
     alignSelf: "center",
-    width: "80%",
+    marginTop: 60,
+    width: "85%",
     borderRadius: 15,
     paddingVertical: 18,
     shadowOpacity: 0.1,
     shadowRadius: 5,
+    elevation: 2,
+  },
+  buttonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });
