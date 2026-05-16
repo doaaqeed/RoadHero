@@ -1,7 +1,9 @@
 import Header from "@/components/Header";
+import { db } from "@/services/firebaseConfig";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import {
   Pressable,
   SafeAreaView,
@@ -13,27 +15,30 @@ import {
 
 type TimelineStep = {
   title: string;
-  time: string;
+  status: string;
 };
 
 const steps: TimelineStep[] = [
-  { title: "Request sent", time: "09:10 AM" },
-  { title: "Provider accepted", time: "09:18 AM" },
-  { title: "On the way", time: "09:41 AM" },
-  { title: "Arrived at location", time: "ETA 7 min" },
-  { title: "Issue fixed", time: "Pending" },
+  { title: "Request sent", status: "assigned" },
+  { title: "Provider accepted", status: "accepted" },
+  { title: "On the way", status: "on_the_way" },
+  { title: "Arrived at location", status: "arrived" },
+  { title: "Issue fixed", status: "fixed" },
 ];
+
+const getStepIndex = (status: string) => {
+  const index = steps.findIndex((step) => step.status === status);
+  return index === -1 ? 0 : index;
+};
 
 function TimelineItem({
   title,
-  time,
   done,
   last = false,
   clickable,
   onPress,
 }: {
   title: string;
-  time: string;
   done: boolean;
   last?: boolean;
   clickable: boolean;
@@ -66,7 +71,7 @@ function TimelineItem({
 
       <View style={styles.timelineTextWrap}>
         <Text style={styles.timelineTitle}>{title}</Text>
-        <Text style={styles.timelineTime}>{time}</Text>
+        <Text style={styles.timelineTime}>{done ? "Done" : "Waiting"}</Text>
 
         {clickable && !done && (
           <Text style={styles.tapHint}>Tap to mark this step</Text>
@@ -77,19 +82,62 @@ function TimelineItem({
 }
 
 export default function RequestProgressScreen() {
-  const { mode } = useLocalSearchParams();
+  const { requestId, mode } = useLocalSearchParams();
 
   const isProvider = mode === "provider";
 
-  const [currentStep, setCurrentStep] = useState(2);
+  const [status, setStatus] = useState("assigned");
+  const [loading, setLoading] = useState(true);
 
+  const currentStep = getStepIndex(status);
   const progressPercent = ((currentStep + 1) / steps.length) * 100;
-
   const currentStatus = steps[currentStep]?.title || "Request sent";
 
-  const handleStepPress = (index: number) => {
+  useEffect(() => {
+    const loadRequestProgress = async () => {
+      if (!requestId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const ref = doc(db, "requests", String(requestId));
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+          const data = snap.data();
+          setStatus(data.status || "assigned");
+        }
+      } catch (error) {
+        console.log("Error loading request progress:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRequestProgress();
+  }, [requestId]);
+
+  const updateProgress = async (newStatus: string) => {
     if (!isProvider) return;
-    setCurrentStep(index);
+
+    if (!requestId) {
+      alert("No request selected.");
+      return;
+    }
+
+    try {
+      const ref = doc(db, "requests", String(requestId));
+
+      await updateDoc(ref, {
+        status: newStatus,
+      });
+
+      setStatus(newStatus);
+    } catch (error) {
+      console.log("Error updating request progress:", error);
+      alert("Failed to update progress.");
+    }
   };
 
   return (
@@ -107,7 +155,9 @@ export default function RequestProgressScreen() {
               <View>
                 <Text style={styles.smallMuted}>Current status</Text>
 
-                <Text style={styles.statusTitle}>{currentStatus}</Text>
+                <Text style={styles.statusTitle}>
+                  {loading ? "Loading..." : currentStatus}
+                </Text>
               </View>
             </View>
 
@@ -133,7 +183,7 @@ export default function RequestProgressScreen() {
 
               <Text style={styles.locationText}>
                 {isProvider
-                  ? "Tap a timeline step to update the request progress"
+                  ? "Tap a timeline step to update this request"
                   : "Waiting for provider updates"}
               </Text>
             </View>
@@ -146,7 +196,7 @@ export default function RequestProgressScreen() {
 
                 <Text style={styles.sectionSubtitle}>
                   {isProvider
-                    ? "Tap steps to update the service progress"
+                    ? "Updates will be saved to Firebase"
                     : "Progress updates from the provider"}
                 </Text>
               </View>
@@ -155,13 +205,12 @@ export default function RequestProgressScreen() {
             <View style={{ marginTop: 18 }}>
               {steps.map((step, index) => (
                 <TimelineItem
-                  key={step.title}
+                  key={step.status}
                   title={step.title}
-                  time={step.time}
                   done={index <= currentStep}
                   last={index === steps.length - 1}
                   clickable={isProvider}
-                  onPress={() => handleStepPress(index)}
+                  onPress={() => updateProgress(step.status)}
                 />
               ))}
             </View>
