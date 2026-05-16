@@ -1,3 +1,4 @@
+import Header from "@/components/Header";
 import { router, useLocalSearchParams } from "expo-router";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -14,20 +15,18 @@ export default function ServiceRequests() {
       try {
         const q = query(
           collection(db, "requests"),
-          where("serviceType", "==", serviceTitle)
+          where("serviceType", "==", serviceTitle),
         );
 
         const snapshot = await getDocs(q);
 
-       const data: any[] = snapshot.docs.map((doc) => ({
-  id: doc.id,
-  ...doc.data(),
-}));
+        const data: any[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
         const filtered = data.filter(
-          (item) =>
-            item.status !== "fixed" &&
-            item.status !== "rejected"
+          (item) => item.status !== "fixed" && item.status !== "rejected",
         );
 
         setRequests(filtered);
@@ -40,40 +39,42 @@ export default function ServiceRequests() {
   }, [serviceTitle]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>{serviceTitle}</Text>
+    <>
+      <Header title={serviceTitle as string} showBackButton={true} />
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+      >
+        {/*<Text style={styles.title}>{serviceTitle}</Text>*/}
 
-      {requests.length === 0 ? (
-        <Text style={styles.empty}>No requests yet</Text>
-      ) : (
-        requests.map((item) => (
-          <Pressable
-            key={item.id}
-            style={styles.card}
-            onPress={() => {
-              router.push({
-                pathname: "/provider/[id]" as any,
-                params: {
-                  id: item.id,
-                },
-              });
-            }}
-          >
-            <Text style={styles.name}>
-              {item.userEmail || "Unknown user"}
-            </Text>
+        {requests.length === 0 ? (
+          <Text style={styles.empty}>No requests yet</Text>
+        ) : (
+          requests.map((item) => (
+            <Pressable
+              onPress={() => {
+                router.push({
+                  pathname: "/provider/[id]",
+                  params: { id: item.id },
+                });
+              }}
+              key={item.id}
+              style={styles.card}
+            >
+              <Text style={styles.name}>
+                {item.userEmail || "Unknown user"}
+              </Text>
 
-            <Text style={styles.text}>
-              Address: {item.address || "No address"}
-            </Text>
+              <Text style={styles.text}>
+                Address: {item.address || "No address"}
+              </Text>
 
-            <Text style={styles.text}>
-              Status: {item.status}
-            </Text>
-          </Pressable>
-        ))
-      )}
-    </ScrollView>
+              <Text style={styles.text}>Status: {item.status}</Text>
+            </Pressable>
+          ))
+        )}
+      </ScrollView>
+    </>
   );
 }
 
