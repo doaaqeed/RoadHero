@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  Linking, // Added to trigger the emergency phone calls
   Pressable,
   ScrollView,
   StyleSheet,
@@ -27,6 +28,37 @@ const services = [
   { id: 3, title: "Tire Repair or Replacement", color: "#E8F7FC", icon: "tire", circle: "#CBF0FB", iconColor: "#71D7F4" },
   { id: 4, title: "On-site Mechanic", color: "#FFFDCD", icon: "tools", circle: "#FFFA72", iconColor: "#FECB4C" },
   { id: 5, title: "Jump Start", color: "#FCF1EA", icon: "battery-charging", circle: "#FEDAC2", iconColor: "#FD914C" },
+];
+
+// Official Palestinian Emergency Hotlines Data Array
+const emergencyContacts = [
+  {
+    id: "police",
+    title: "Police",
+    number: "100",
+    icon: "shield-alert",
+    color: "#E3F2FD",
+    circle: "#BBDEFB",
+    iconColor: "#1565C0",
+  },
+  {
+    id: "ambulance",
+    title: "Ambulance",
+    number: "101",
+    icon: "ambulance",
+    color: "#FFEBEE",
+    circle: "#FFCDD2",
+    iconColor: "#C62828",
+  },
+  {
+    id: "civil_defense",
+    title: "Civil Defense",
+    number: "102",
+    icon: "fire-truck",
+    color: "#FFF3E0",
+    circle: "#FFE0B2",
+    iconColor: "#EF6C00",
+  },
 ];
 
 export default function HomeScreen() {
@@ -101,6 +133,33 @@ export default function HomeScreen() {
     const pickedCoords = e.nativeEvent.coordinate;
     setMarkerCoords(pickedCoords);
     await fetchAddress(pickedCoords.latitude, pickedCoords.longitude);
+  };
+
+  // Helper action function to open system native phone application dialer schemas
+  const handleCallEmergency = (number: string, title: string) => {
+    Alert.alert(
+      "Emergency Call",
+      `Are you sure you want to call Palestinian ${title} (${number})?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Call",
+          style: "destructive",
+          onPress: () => {
+            Linking.openURL(`tel:${number}`).catch((err) => {
+              console.error(
+                "Failed to launch system phone dialer application bundle package:",
+                err,
+              );
+              Alert.alert(
+                "Error",
+                "Could not trigger phone call on this device automatically.",
+              );
+            });
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -297,6 +356,48 @@ export default function HomeScreen() {
             </Pressable>
           ))}
         </View>
+
+        {/* Brand New Emergency Contacts Bottom Component Section Block */}
+        <View style={styles.emergencyContainer}>
+          <Text style={styles.emergencySectionTitle}>Emergency Contacts</Text>
+          <View style={styles.emergencyGrid}>
+            {emergencyContacts.map((contact) => (
+              <Pressable
+                key={contact.id}
+                onPress={() =>
+                  handleCallEmergency(contact.number, contact.title)
+                }
+                style={({ pressed }) => [
+                  styles.emergencyCard,
+                  { backgroundColor: contact.color },
+                  pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.emergencyIconCircle,
+                    { backgroundColor: contact.circle },
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name={contact.icon as any}
+                    size={24}
+                    color={contact.iconColor}
+                  />
+                </View>
+                <Text style={styles.emergencyCardTitle}>{contact.title}</Text>
+                <Text
+                  style={[
+                    styles.emergencyCardNumber,
+                    { color: contact.iconColor },
+                  ]}
+                >
+                  {contact.number}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
       </ScrollView>
     </>
   );
@@ -374,6 +475,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  addressLabel: { fontSize: 14, color: "gray" },
+  addressRow: { flexDirection: "row", alignItems: "center", marginTop: 5 },
+  addressText: { fontSize: 14, fontWeight: "bold", marginLeft: 5, flex: 1 },
   changeButton: {
     borderColor: "#ccc",
     borderWidth: 1,
@@ -395,7 +499,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 10,
     gap: 12,
-    marginBottom: 30,
+    marginBottom: 10, // Adjusted layout padding to separate gracefully from the emergency block
   },
 
   card: {
@@ -424,5 +528,56 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontWeight: "bold",
     fontSize: 11,
+  },
+});
+  // Emergency Area Structural Container Style Schemes
+  emergencyContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 40,
+    marginTop: 10,
+  },
+  emergencySectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#222",
+    marginTop: 20,
+
+    marginBottom: 20,
+  },
+  emergencyGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  emergencyCard: {
+    flex: 1,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 125,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  emergencyIconCircle: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emergencyCardTitle: {
+    textAlign: "center",
+    marginTop: 8,
+    fontWeight: "bold",
+    fontSize: 12,
+    color: "#333",
+  },
+  emergencyCardNumber: {
+    fontSize: 13,
+    fontWeight: "700",
+    marginTop: 2,
   },
 });
