@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import { auth, db } from "@/services/firebaseConfig";
+import { savePushTokenToCurrentUser } from "@/services/notificationService";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import { doc, GeoPoint, getDoc, updateDoc } from "firebase/firestore";
@@ -48,14 +49,14 @@ const ALL_SERVICES: Service[] = [
     skillIds: ["tow_pickup", "tow_medium", "tow_large"],
   },
   {
-    title: "Tire Repair\n & Replacement",
+    title: "Tire Repair or Replacement",
     Icon: LifeBuoy,
     bgColor: "#CFFAFE",
     iconColor: "#0891B2",
     skillIds: ["tire_change"],
   },
   {
-    title: "On-Site Mechanic",
+    title: "On-site Mechanic",
     Icon: Wrench,
     bgColor: "#FEF3C7",
     iconColor: "#D97706",
@@ -86,6 +87,8 @@ export default function Dashboard() {
       if (!userId) return;
 
       try {
+        await savePushTokenToCurrentUser("provider");
+
         const ref = doc(db, "providers", userId);
         const snap = await getDoc(ref);
 
@@ -103,6 +106,7 @@ export default function Dashboard() {
 
     const requestLocation = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
+
       if (status !== "granted") return;
 
       const loc = await Location.getCurrentPositionAsync({});
@@ -173,7 +177,10 @@ export default function Dashboard() {
           <Switch
             value={isAvailable}
             onValueChange={toggleAvailability}
-            trackColor={{ false: "#767577", true: "#6ad457" }}
+            trackColor={{
+              false: "#767577",
+              true: "#6ad457",
+            }}
           />
         </View>
       </View>
@@ -192,7 +199,9 @@ export default function Dashboard() {
               onPress={() =>
                 router.push({
                   pathname: "/provider/service-requests" as any,
-                  params: { serviceTitle: title },
+                  params: {
+                    serviceTitle: title,
+                  },
                 })
               }
               onPressIn={() => setPressedCard(title)}
@@ -211,8 +220,10 @@ export default function Dashboard() {
           <View style={styles.completedIcon}>
             <CheckSquare size={24} color="#ffffff" strokeWidth={2.6} />
           </View>
+
           <View>
             <Text style={styles.cardTitle}>Completed</Text>
+
             <Text style={styles.cardSubtitle}>
               {completedCount} services this month
             </Text>

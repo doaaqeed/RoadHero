@@ -1,3 +1,7 @@
+import {
+  getUserExpoPushToken,
+  sendExpoPushNotification,
+} from "@/services/notificationService";
 import Header from "@/components/Header";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Added to render the phone/call icon cleanly
 import * as Location from "expo-location";
@@ -168,7 +172,22 @@ const RequestDetails = () => {
         status: newStatus,
       });
 
-      if (newStatus === "accepted") {
+      if (newStatus === "accepted" && requestDetails?.userUID) {
+        const userExpoPushToken = await getUserExpoPushToken(
+          requestDetails.userUID
+        );
+
+        if (userExpoPushToken) {
+          await sendExpoPushNotification(
+            userExpoPushToken,
+            "Request accepted",
+            "Your provider accepted your request.",
+            {
+              requestId: docId,
+            }
+          );
+        }
+
         router.push({
           pathname: "/shared/request-progress" as any,
           params: {
@@ -359,6 +378,29 @@ const RequestDetails = () => {
                     : "No Date"}
               </Text>
             </View>
+          )}
+
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Address</Text>
+            <View style={{ paddingLeft: 60 }} />
+            <Text style={styles.value}>{requestDetails.address}</Text>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Phone</Text>
+            <View style={{ paddingLeft: 70 }} />
+            <Text style={styles.value}>{userDetails?.phoneNumber}</Text>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Created At</Text>
+            <View style={{ paddingLeft: 43 }} />
+            <Text style={styles.value}>
+              {requestDetails.createdAt?.toDate
+                ? requestDetails.createdAt.toDate().toLocaleString()
+                : "No Date"}
+            </Text>
+          </View>
 
             {/* Map Section Layout */}
             <View style={styles.mapContainer}>
@@ -525,6 +567,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#f0f0f0",
   },
+
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    marginTop: 20,
   map: { ...StyleSheet.absoluteFillObject },
   customMarkerContainer: { alignItems: "center", justifyContent: "center" },
   markerDot: {
