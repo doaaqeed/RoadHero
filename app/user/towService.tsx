@@ -129,7 +129,7 @@ export default function TowService() {
                 style={styles.image}
                 resizeMode="contain"
               />
-              <Text style={styles.cardText}>Mini Truck</Text>
+              <Text style={styles.cardText}>Medium Truck (Flatbed)</Text>
             </Pressable>
 
             <Pressable
@@ -156,7 +156,7 @@ export default function TowService() {
                 style={styles.image}
                 resizeMode="contain"
               />
-              <Text style={styles.cardText}>Large Truck</Text>
+              <Text style={styles.cardText}>Large Truck (Heavy Duty)</Text>
             </Pressable>
           </View>
 
@@ -215,9 +215,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF7ED",
   },
   cardText: {
+    textAlign: "center",
     marginTop: 10,
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 14,
     color: "#333",
   },
   image: {
