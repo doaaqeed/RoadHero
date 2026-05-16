@@ -1,10 +1,12 @@
 import Header from "@/components/Header";
+import { MaterialCommunityIcons } from "@expo/vector-icons"; // Added to render the phone/call icon cleanly
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Linking, // Added to trigger native phone calls
   ScrollView,
   StyleSheet,
   Text,
@@ -183,6 +185,22 @@ const RequestDetails = () => {
     }
   };
 
+  // Safe launcher wrapper function to initialize cellular phone system dialer applications
+  const handleMakePhoneCall = (phoneNumber: string) => {
+    if (!phoneNumber) {
+      alert("Phone number is missing for this user.");
+      return;
+    }
+    const cleanNumber = phoneNumber.replace(/[^+\d]/g, "");
+    Linking.openURL(`tel:${cleanNumber}`).catch((err) => {
+      console.error(
+        "Failed to open phone dialer schema system application handler:",
+        err,
+      );
+      alert("Could not trigger call service automatically on this device.");
+    });
+  };
+
   if (loading) {
     return (
       <ActivityIndicator size="large" color="#FF8C00" style={styles.loader} />
@@ -309,12 +327,25 @@ const RequestDetails = () => {
               </View>
             )}
 
+            {/* Phone Row Refactored into a customized clickable Phone Capsule Action Pill */}
             <View style={styles.detailRow}>
               <Text style={styles.label}>Phone</Text>
-              <View style={{ paddingLeft: 75 }} />
-              <Text style={styles.value}>
-                {userDetails?.phoneNumber || "No Phone Provided"}
-              </Text>
+              <View style={{ flex: 1 }} />
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => handleMakePhoneCall(userDetails?.phoneNumber)}
+                style={styles.phoneBadgeCapsuleButton}
+              >
+                <Text style={styles.phoneBadgeText}>
+                  {userDetails?.phoneNumber || "No Phone Provided"}
+                </Text>
+                <MaterialCommunityIcons
+                  name="phone"
+                  size={16}
+                  color="#FF8C00"
+                  style={styles.phoneIconIndent}
+                />
+              </TouchableOpacity>
             </View>
 
             <View style={styles.detailRow}>
@@ -584,6 +615,26 @@ const styles = StyleSheet.create({
     padding: 18,
     backgroundColor: "#1E88E5",
     borderRadius: 15,
+  },
+  // Stylings configured exclusively for matching the visual call capsule design specifications
+  phoneBadgeCapsuleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFE0B2",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    marginRight: 80,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#FFB74D",
+  },
+  phoneBadgeText: {
+    fontSize: 15,
+    color: "#333333",
+    fontWeight: "500",
+  },
+  phoneIconIndent: {
+    marginLeft: 8,
   },
 });
 
