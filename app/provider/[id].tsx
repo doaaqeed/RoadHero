@@ -1,3 +1,7 @@
+import {
+  getUserExpoPushToken,
+  sendExpoPushNotification,
+} from "@/services/notificationService";
 import { router, useLocalSearchParams } from "expo-router";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -43,10 +47,6 @@ const RequestDetails = () => {
 
           if (userSnap.exists()) {
             setUserDetails(userSnap.data());
-          } else {
-            console.log(
-              `Path: users/${requestData.userUID} does not exist in Firestore.`
-            );
           }
         }
       }
@@ -76,7 +76,22 @@ const RequestDetails = () => {
         status: newStatus,
       });
 
-      if (newStatus === "accepted") {
+      if (newStatus === "accepted" && requestDetails?.userUID) {
+        const userExpoPushToken = await getUserExpoPushToken(
+          requestDetails.userUID
+        );
+
+        if (userExpoPushToken) {
+          await sendExpoPushNotification(
+            userExpoPushToken,
+            "Request accepted",
+            "Your provider accepted your request.",
+            {
+              requestId: docId,
+            }
+          );
+        }
+
         router.push({
           pathname: "/shared/request-progress" as any,
           params: {
@@ -223,25 +238,19 @@ const RequestDetails = () => {
 
           <View style={styles.detailRow}>
             <Text style={styles.label}>Address</Text>
-
             <View style={{ paddingLeft: 60 }} />
-
             <Text style={styles.value}>{requestDetails.address}</Text>
           </View>
 
           <View style={styles.detailRow}>
             <Text style={styles.label}>Phone</Text>
-
             <View style={{ paddingLeft: 70 }} />
-
             <Text style={styles.value}>{userDetails?.phoneNumber}</Text>
           </View>
 
           <View style={styles.detailRow}>
             <Text style={styles.label}>Created At</Text>
-
             <View style={{ paddingLeft: 43 }} />
-
             <Text style={styles.value}>
               {requestDetails.createdAt?.toDate
                 ? requestDetails.createdAt.toDate().toLocaleString()
@@ -319,12 +328,6 @@ const styles = StyleSheet.create({
 
   card: {
     padding: 15,
-  },
-
-  detailText: {
-    fontSize: 16,
-    color: "#444",
-    marginBottom: 5,
   },
 
   errorText: {
