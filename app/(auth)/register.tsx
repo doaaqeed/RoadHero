@@ -52,7 +52,7 @@ export default function Register() {
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         alert("This email is already registered.");
-        router.replace("/login");
+        router.replace("/(auth)/login");
       } else {
         alert(error.message);
       }
@@ -269,7 +269,7 @@ export default function Register() {
           <View style={[styles.center, styles.mB28, styles.mT_1]}>
             <Text>
               Already have an account ?
-              <Link href="/login" style={styles.loginLink}>
+              <Link href="/(auth)/login" style={styles.loginLink}>
                 Login
               </Link>
             </Text>

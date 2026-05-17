@@ -1,8 +1,9 @@
+import Header from "@/components/Header";
 import { sendServiceRequest } from "@/services/requestService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import * as Network from "expo-network"; // Import network
+import * as Network from "expo-network";
 import { router, useLocalSearchParams } from "expo-router";
-import { getAuth } from "firebase/auth"; // To get the UID
+import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -13,7 +14,8 @@ import {
   Text,
   View,
 } from "react-native";
-import { saveRequestOffline } from "../../utils/offlineStorage"; // Import your utility
+import { saveRequestOffline } from "../../utils/offlineStorage";
+
 export default function FuelService() {
   const [count, setCount] = useState(0);
   const [fuel, setFuel] = useState<string | null>(null);
@@ -54,25 +56,27 @@ export default function FuelService() {
         createdAt: new Date().toISOString(),
       };
 
-      // Check Network Status
       const networkState = await Network.getNetworkStateAsync();
 
       if (!networkState.isConnected || !networkState.isInternetReachable) {
         await saveRequestOffline(requestData);
-
         router.replace("/(user)/history");
       } else {
-        // ONLINE PATH
         const requestId = await sendServiceRequest(
           requestData.serviceType,
           requestData.details,
           requestData.location,
           requestData.address,
         );
-
+        const serviceId = fuel === "Gasoline" ? "fuel_petrol" : "fuel_diesel";
         router.push({
           pathname: "/user/waitingScreen",
-          params: { requestId },
+          params: {
+            requestId,
+            serviceTitle: serviceId,
+            userLat: String(lat),
+            userLng: String(lng),
+          },
         });
       }
     } catch (error: any) {
@@ -83,113 +87,122 @@ export default function FuelService() {
   };
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={{ alignItems: "center" }}
-    >
-      <View style={{ width: "100%", maxWidth: 500 }}>
-        <View style={styles.container}>
-          <MaterialCommunityIcons name="gas-station" size={40} color="green" />
-          <Text style={{ fontSize: 35, fontWeight: "bold" }}>Fuel</Text>
-        </View>
+    <>
+      <Header title="Fuel Delivery" showBackButton={true} />
 
-        <Text
-          style={{ fontSize: 20, color: "grey", marginLeft: 30, marginTop: 20 }}
-        >
-          Choose fuel type as your need
-        </Text>
-
-        <View style={styles.cards}>
-          <Pressable
-            onPress={() => setFuel("Gasoline")}
-            style={[
-              styles.card,
-              fuel === "Gasoline" && {
-                borderColor: "green",
-                borderWidth: 3,
-                backgroundColor: "#E9FCE9",
-              },
-            ]}
-          >
-            <Text style={{ fontWeight: "bold" }}>Gasoline</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setFuel("Diesel")}
-            style={[
-              styles.card,
-              fuel === "Diesel" && {
-                borderColor: "green",
-                borderWidth: 3,
-                backgroundColor: "#E9FCE9",
-              },
-            ]}
-          >
-            <Text style={{ fontWeight: "bold" }}>Diesel</Text>
-          </Pressable>
-        </View>
-
-        <Text
-          style={{
-            fontSize: 20,
-            color: "grey",
-            marginLeft: 30,
-            marginTop: 30,
-            marginBottom: 25,
-          }}
-        >
-          Choose the quantity you need
-        </Text>
-
-        <View style={styles.counter}>
-          <View style={styles.iconCircle}>
-            <MaterialCommunityIcons name="fuel" size={40} color="green" />
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={{ alignItems: "center" }}
+      >
+        <View style={{ width: "100%", maxWidth: 500, paddingBottom: 40 }}>
+          <View style={styles.container}>
+            <MaterialCommunityIcons
+              name="gas-station"
+              size={40}
+              color="#f07e41"
+            />
+            <Text style={{ fontSize: 35, fontWeight: "bold" }}>Fuel</Text>
           </View>
-          <View style={{ marginLeft: 10, marginTop: 10 }}>
-            <Text style={{ fontWeight: "bold", fontSize: 20 }}>
-              Fuel quantity
-            </Text>
-            <Text style={{ color: "grey", fontSize: 15 }}>in liter</Text>
-          </View>
-          <View style={styles.counterControls}>
+
+          <Text
+            style={{
+              fontSize: 20,
+              color: "grey",
+              marginLeft: 25,
+              marginTop: 20,
+            }}
+          >
+            Choose fuel type as your need
+          </Text>
+
+          <View style={styles.cards}>
             <Pressable
-              onPress={() => setCount(Math.max(0, count - 1))}
-              style={styles.counterBtn}
+              onPress={() => setFuel("Gasoline")}
+              style={[
+                styles.card,
+                fuel === "Gasoline" && {
+                  borderColor: "#f07e41",
+                  borderWidth: 3,
+                  backgroundColor: "#FFF7ED",
+                },
+              ]}
             >
-              <Text style={{ fontSize: 20 }}>-</Text>
+              <Text style={styles.cardText}>Gasoline</Text>
             </Pressable>
-            <Text style={{ fontSize: 20, marginTop: 7 }}>{count}</Text>
             <Pressable
-              onPress={() => setCount(count + 1)}
-              style={styles.counterBtn}
+              onPress={() => setFuel("Diesel")}
+              style={[
+                styles.card,
+                fuel === "Diesel" && {
+                  borderColor: "#f07e41",
+                  borderWidth: 3,
+                  backgroundColor: "#FFF7ED",
+                },
+              ]}
             >
-              <Text style={{ fontSize: 20 }}>+</Text>
+              <Text style={styles.cardText}>Diesel</Text>
             </Pressable>
           </View>
-        </View>
 
-        <Pressable
-          disabled={!fuel || count === 0 || isSubmitting}
-          style={[
-            styles.requestButton,
-            {
-              backgroundColor:
-                fuel && count > 0 && !isSubmitting ? "green" : "#b6b3b3",
-            },
-          ]}
-          onPress={handleConfirm}
-        >
-          {isSubmitting ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text
-              style={{ color: "white", textAlign: "center", fontWeight: "600" }}
-            >
-              Confirm
-            </Text>
-          )}
-        </Pressable>
-      </View>
-    </ScrollView>
+          <Text
+            style={{
+              fontSize: 20,
+              color: "grey",
+              marginLeft: 25,
+              marginTop: 30,
+              marginBottom: 25,
+            }}
+          >
+            Choose the quantity you need
+          </Text>
+
+          <View style={styles.counter}>
+            <View style={styles.iconCircle}>
+              <MaterialCommunityIcons name="fuel" size={40} color="#f07e41" />
+            </View>
+            <View style={{ marginLeft: 15, flex: 1 }}>
+              <Text style={{ fontWeight: "bold", fontSize: 20 }}>
+                Fuel quantity
+              </Text>
+              <Text style={{ color: "grey", fontSize: 15 }}>in liter</Text>
+            </View>
+            <View style={styles.counterControls}>
+              <Pressable
+                onPress={() => setCount(Math.max(0, count - 1))}
+                style={styles.counterBtn}
+              >
+                <Text style={styles.counterBtnText}>-</Text>
+              </Pressable>
+              <Text style={styles.counterText}>{count}</Text>
+              <Pressable
+                onPress={() => setCount(count + 1)}
+                style={styles.counterBtn}
+              >
+                <Text style={styles.counterBtnText}>+</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <Pressable
+            disabled={!fuel || count === 0 || isSubmitting}
+            style={[
+              styles.requestButton,
+              {
+                backgroundColor:
+                  fuel && count > 0 && !isSubmitting ? "#f07e41" : "#b6b3b3",
+              },
+            ]}
+            onPress={handleConfirm}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.buttonText}>Confirm</Text>
+            )}
+          </Pressable>
+        </View>
+      </ScrollView>
+    </>
   );
 }
 
@@ -199,7 +212,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: "row",
-    marginTop: 140,
+    marginTop: 30,
     alignItems: "center",
     gap: 15,
     marginLeft: 25,
@@ -220,13 +233,17 @@ const styles = StyleSheet.create({
     borderColor: "#bbb5b5",
     borderRadius: 20,
   },
+  cardText: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
   counter: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: 20,
-    paddingHorizontal: 20,
-    maxWidth: 400,
+    paddingHorizontal: 25,
+    maxWidth: 500,
     alignSelf: "center",
     width: "100%",
   },
@@ -240,9 +257,8 @@ const styles = StyleSheet.create({
   },
   counterControls: {
     flexDirection: "row",
-    marginTop: 10,
-    marginLeft: 25,
-    gap: 25,
+    alignItems: "center",
+    gap: 20,
   },
   counterBtn: {
     backgroundColor: "#f5f3f3",
@@ -252,15 +268,31 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  counterBtnText: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#333",
+  },
+  counterText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    minWidth: 20,
+    textAlign: "center",
+  },
   requestButton: {
-    marginLeft: 30,
-    marginRight: 30,
-    marginTop: 100,
-    padding: 15,
+    alignSelf: "center",
+    marginTop: 60,
+    width: "85%",
     borderRadius: 15,
-    alignItems: "center",
     paddingVertical: 18,
     shadowOpacity: 0.1,
     shadowRadius: 5,
+    elevation: 2,
+  },
+  buttonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });

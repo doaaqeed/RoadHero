@@ -1,30 +1,109 @@
+import Header from "@/components/Header";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React from "react";
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import {
+  router,
+  Stack,
+  useLocalSearchParams,
+  useNavigation,
+} from "expo-router";
+import React, { useCallback, useEffect } from "react";
+import {
+  Alert,
+  BackHandler,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function RequestPending() {
+  const { requestId, serviceTitle, userLat, userLng } = useLocalSearchParams();
+  const navigation = useNavigation();
+
+  // Function to handle the exit attempt
+  const handleExitRequest = () => {
+    Alert.alert(
+      "Exit Search?",
+      "Are you sure you want to go back to home and cancel the request? You can still view providers manually.",
+      [
+        { text: "Stay", style: "cancel" },
+        {
+          text: "Exit to Home",
+          style: "destructive",
+          onPress: () => router.replace("/(user)"),
+        },
+      ],
+    );
+  };
+
+  // 1. iOS Fix: Disable swipe and hide native header
+  useEffect(() => {
+    navigation.setOptions({
+      gestureEnabled: false,
+      headerShown: false,
+    });
+  }, [navigation]);
+
+  // 2. Android Fix: Physical Back Button
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        handleExitRequest();
+        return true;
+      };
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+      return () => subscription.remove();
+    }, []),
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      {/* Ensure native gestures are locked */}
+      <Stack.Screen options={{ gestureEnabled: false, headerShown: false }} />
+
+      {/* Custom Header matching Waiting Screen */}
+      <Header
+        title="Nearby Help"
+        showBackButton={true}
+        onBackPress={handleExitRequest}
+      />
+
       <View style={styles.content}>
         <Ionicons name="alert-circle-outline" size={80} color="#f39c12" />
 
         <Text style={styles.title}>No providers found yet</Text>
 
         <Text style={styles.description}>
-          The automatic search timed out, but you can still choose a RoadHero
-          manually from our list.
+          The automatic search timed out for{" "}
+          <Text style={{ fontWeight: "bold" }}>
+            {serviceTitle?.toString().replace("_", " ")}
+          </Text>
+          , but you can still choose a RoadHero manually.
         </Text>
 
         <Pressable
           style={styles.button}
-          onPress={() => router.push("/user/providerListing")}
+          onPress={() =>
+            router.push({
+              pathname: "/user/providerListing",
+              params: { requestId, serviceTitle, userLat, userLng },
+            })
+          }
         >
           <Text style={styles.buttonText}>View Provider List</Text>
           <Ionicons name="arrow-forward" size={20} color="white" />
         </Pressable>
+
+        <TouchableOpacity onPress={handleExitRequest} style={{ marginTop: 30 }}>
+          <Text style={styles.backHomeText}>Back to Home</Text>
+        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -37,19 +116,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 25,
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
     marginTop: 20,
     color: "#333",
-  },
-  divider: {
-    height: 2,
-    width: 60,
-    backgroundColor: "#eee",
-    marginVertical: 20,
   },
   description: {
     textAlign: "center",
@@ -66,11 +139,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 30,
     alignItems: "center",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   buttonText: {
     color: "white",
     fontWeight: "bold",
     fontSize: 16,
     marginRight: 10,
+  },
+  backHomeText: {
+    color: "#666",
+    fontSize: 15,
+    textDecorationLine: "underline",
   },
 });
