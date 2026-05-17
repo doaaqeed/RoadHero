@@ -13,7 +13,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE"      },
+        "backgroundColor": "#E6F4FE"
+      },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
@@ -36,7 +37,8 @@
       ],
       "expo-font",
       "expo-sqlite",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
