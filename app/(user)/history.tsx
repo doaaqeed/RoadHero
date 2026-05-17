@@ -1,8 +1,9 @@
 import Header from "@/components/Header";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query"; 
 import { getAuth } from "firebase/auth";
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -27,75 +28,60 @@ const STATUS_STYLES: Record<
   rejected: { bg: "#FFEBEE", text: "#C62828" },
 };
 
-// Global safe fallback config to prevent object property access crashes
 const DEFAULT_STATUS_STYLE = { bg: "#E3F2FD", text: "#1E88E5" };
 
 export default function HistoryScreen() {
-  const [requests, setRequests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  
+  const fetchRequestsHistory = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return [];
 
-  const fetchData = async () => {
-    try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      if (!user) return;
+    const offlineData = await getOfflineRequests();
+    const formattedOffline = (offlineData || []).map((req: any) => ({
+      ...req,
+      id: `offline-${req.id || Math.random().toString()}`,
+      status: "offline",
+    }));
 
-      const offlineData = await getOfflineRequests();
-      const formattedOffline = (offlineData || []).map((req: any) => ({
-        ...req,
-        id: `offline-${req.id || Math.random().toString()}`,
-        status: "offline",
-      }));
+    // Fetch Online Requests from Firebase
+    const q = query(
+      collection(db, "requests"),
+      where("userUID", "==", user.uid),
+      orderBy("createdAt", "desc"),
+    );
+    const querySnapshot = await getDocs(q);
+    const onlineData = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
 
-      // Fetch Online Requests from Firebase
-      const q = query(
-        collection(db, "requests"),
-        where("userUID", "==", user.uid),
-        orderBy("createdAt", "desc"),
-      );
-      const querySnapshot = await getDocs(q);
-      const onlineData = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
+      const date = data.createdAt?.toDate
+        ? data.createdAt.toDate()
+        : data.createdAt
+          ? new Date(data.createdAt)
+          : new Date();
 
-        // Safely parse timestamps regardless of string vs Firestore Timestamp object formats
-        const date = data.createdAt?.toDate
-          ? data.createdAt.toDate()
-          : data.createdAt
-            ? new Date(data.createdAt)
-            : new Date();
+      return {
+        id: doc.id,
+        ...data,
+        displayDate: date.toLocaleString(),
+      };
+    });
 
-        return {
-          id: doc.id,
-          ...data,
-          displayDate: date.toLocaleString(),
-        };
-      });
-
-      setRequests([...formattedOffline, ...onlineData]);
-    } catch (error) {
-      console.error(
-        "Error fetching history history tracking data logs:",
-        error,
-      );
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+    return [...formattedOffline, ...onlineData];
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchData();
-  };
+  const {
+    data: requests = [], 
+    isLoading,         
+    isRefetching,      
+    refetch,             
+  } = useQuery({
+    queryKey: ["requestsHistory"], 
+    queryFn: fetchRequestsHistory,
+  });
 
   const renderItem = ({ item }: { item: any }) => {
     const currentStatus = item.status?.toLowerCase() || "pending";
-    // Fixed: Fallback onto default style options objects if status layout doesn't map directly
     const statusConfig = STATUS_STYLES[currentStatus] || DEFAULT_STATUS_STYLE;
 
     return (
@@ -129,7 +115,7 @@ export default function HistoryScreen() {
   return (
     <View style={styles.container}>
       <Header title="My Requests" />
-      {loading ? (
+      {isLoading ? (
         <ActivityIndicator
           size="large"
           color="#ff6b1a"
@@ -142,7 +128,7 @@ export default function HistoryScreen() {
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
           }
           ListEmptyComponent={
             <Text style={styles.emptyText}>No requests found.</Text>
