@@ -8,16 +8,8 @@ export default function UserTabLayout() {
       screenOptions={{
         headerShown: false,
       }}
-      // Your custom tab bar will now only handle provider routes
       tabBar={(props) => <AppTabBar {...props} />}
     >
-      {/* 
-        This handles the default route. 
-        In (provider)/index.tsx, you should have your Dashboard.
-      */}
-      {/* 
-        Provider Profile Tab
-      */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -36,12 +28,6 @@ export default function UserTabLayout() {
           title: "Home",
         }}
       />
-
-      {/* 
-        HIDDEN SCREENS:
-        Any screen you put in the (provider) folder that 
-        SHOULD NOT be a tab must be defined with href: null
-      */}
       <Tabs.Screen
         name="fuelService"
         options={{
