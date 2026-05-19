@@ -1,9 +1,38 @@
 import * as SQLite from "expo-sqlite";
 
+interface RequestLocation {
+  latitude: number;
+  longitude: number;
+}
+
+interface RequestData {
+  userUID: string;
+  userEmail: string;
+  serviceType: string;
+  address: string;
+  location: RequestLocation;
+  details: Record<string, any>;
+  status: string;
+  createdAt: string | number;
+}
+
+export interface OfflineRequestRow {
+  id: number;
+  userUID: string;
+  userEmail: string;
+  serviceType: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  details: string;
+  status: string;
+  createdAt: string;
+}
+
 // Open the database
 const db = SQLite.openDatabaseSync("roadhero_offline.db");
 
-export const initDB = async () => {
+export const initDB = async (): Promise<void> => {
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS offline_requests (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,7 +49,9 @@ export const initDB = async () => {
   `);
 };
 
-export const saveRequestOffline = async (requestData) => {
+export const saveRequestOffline = async (
+  requestData: RequestData,
+): Promise<void> => {
   const {
     userUID,
     userEmail,
@@ -32,7 +63,6 @@ export const saveRequestOffline = async (requestData) => {
     createdAt,
   } = requestData;
 
-  // Convert the 'details' object to a string to store it in SQLite
   const detailsString = JSON.stringify(details);
 
   await db.runAsync(
@@ -47,14 +77,14 @@ export const saveRequestOffline = async (requestData) => {
       location.longitude,
       detailsString,
       status,
-      createdAt,
+      String(createdAt),
     ],
   );
 };
-export const getOfflineRequests = async () => {
+
+export const getOfflineRequests = async (): Promise<OfflineRequestRow[]> => {
   try {
-    // We use getAllAsync to get all rows from the table
-    const allRows = await db.getAllAsync(
+    const allRows = await db.getAllAsync<OfflineRequestRow>(
       "SELECT * FROM offline_requests ORDER BY createdAt DESC",
     );
     return allRows;
@@ -63,7 +93,8 @@ export const getOfflineRequests = async () => {
     return [];
   }
 };
-export const deleteOfflineRequest = async (id) => {
+
+export const deleteOfflineRequest = async (id: number): Promise<void> => {
   try {
     await db.runAsync("DELETE FROM offline_requests WHERE id = ?;", [id]);
   } catch (error) {

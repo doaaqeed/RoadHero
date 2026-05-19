@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query"; 
+import { useQuery } from "@tanstack/react-query";
 import { getAuth } from "firebase/auth";
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import React from "react";
@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { db } from "../../services/firebaseConfig";
-import { getOfflineRequests } from "../../utils/offlineStorage";
+import { getOfflineRequests } from "../../utils/offline-storage";
 
 const STATUS_STYLES: Record<
   string,
@@ -31,7 +31,6 @@ const STATUS_STYLES: Record<
 const DEFAULT_STATUS_STYLE = { bg: "#E3F2FD", text: "#1E88E5" };
 
 export default function HistoryScreen() {
-  
   const fetchRequestsHistory = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
@@ -71,12 +70,12 @@ export default function HistoryScreen() {
   };
 
   const {
-    data: requests = [], 
-    isLoading,         
-    isRefetching,      
-    refetch,             
+    data: requests = [],
+    isLoading,
+    isRefetching,
+    refetch,
   } = useQuery({
-    queryKey: ["requestsHistory"], 
+    queryKey: ["requestsHistory"],
     queryFn: fetchRequestsHistory,
   });
 
