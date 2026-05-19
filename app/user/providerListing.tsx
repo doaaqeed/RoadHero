@@ -34,7 +34,6 @@ type Provider = {
   eta: string;
 };
 
-// Updated with your snippets' constants: ROAD_FACTOR & AVG_SPEED_KMH
 const calculateETA = (
   userLat: number,
   userLng: number,
@@ -125,7 +124,6 @@ export default function ProviderListing() {
         for (const docSnap of querySnapshot.docs) {
           const data = docSnap.data();
 
-          // Fetch name AND phone from users collection (same doc ID as provider)
           let fullName = "RoadHero Pro";
           let phoneNumber = "";
           try {
@@ -139,7 +137,7 @@ export default function ProviderListing() {
             console.warn("Could not fetch user data for provider:", docSnap.id);
           }
 
-          // ✅ Rating Logic calculation from snippet
+          // rating Logic calculation
           const ratingsArray: number[] = data.ratings || [];
           const avgRating = ratingsArray.length
             ? parseFloat(
@@ -150,7 +148,7 @@ export default function ProviderListing() {
               )
             : (data.averageRating ?? 5.0);
 
-          // ✅ ETA Logic calculation from snippet
+          // ETA Logic calculation
           let estimatedTime = "Ready";
           if (data.location && userLat && userLng) {
             const mins = calculateETA(
@@ -165,12 +163,12 @@ export default function ProviderListing() {
           fetched.push({
             id: docSnap.id,
             name: fullName,
-            rating: avgRating, // ✅ Integrated dynamic rating
+            rating: avgRating, 
             phone: phoneNumber,
             bgColor: "#F0F4F8",
             iconColor: "#f07e41",
             skills: data.skills || [],
-            eta: estimatedTime, // ✅ Integrated updated ETA calculation
+            eta: estimatedTime,
           });
         }
 
