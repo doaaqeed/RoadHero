@@ -6,7 +6,6 @@ export default function OfflineBanner() {
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    // Check immediately on load
     const checkInitialStatus = async () => {
       const state = await Network.getNetworkStateAsync();
       setIsOffline(!state.isConnected);
@@ -14,8 +13,6 @@ export default function OfflineBanner() {
 
     checkInitialStatus();
 
-    // Instead of a 3-second timer, use a listener if your Expo version supports it
-    // or keep the timer but reduced to 1000ms for faster feedback.
     const timer = setInterval(async () => {
       const state = await Network.getNetworkStateAsync();
       setIsOffline(!state.isConnected);
@@ -38,7 +35,7 @@ export default function OfflineBanner() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { backgroundColor: "#b91c1c" }, // Prevents white gaps at the very top
+  safeArea: { backgroundColor: "#b91c1c" }, 
   container: {
     backgroundColor: "#b91c1c",
     padding: 10,
