@@ -5,16 +5,28 @@ import { db as firestore } from "../services/firebaseConfig";
 import {
   deleteOfflineRequest,
   getOfflineRequests,
-} from "../utils/offlineStorage";
+} from "../utils/offline-storage";
 
-export const useSync = () => {
+interface OfflineRequest {
+  id: number;
+  userUID: string;
+  userEmail: string;
+  serviceType: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  details: string;
+  createdAt: string | number;
+}
+
+export const useSync = (): void => {
   useEffect(() => {
-    const syncData = async () => {
+    const syncData = async (): Promise<void> => {
       const state = await Network.getNetworkStateAsync();
 
-      // Only attempt sync if we are online
+      // Only attempt sync if online
       if (state.isConnected && state.isInternetReachable) {
-        const offlineItems = await getOfflineRequests();
+        const offlineItems: OfflineRequest[] = await getOfflineRequests();
 
         if (offlineItems.length > 0) {
           console.log(`Found ${offlineItems.length} items to sync...`);
@@ -32,7 +44,7 @@ export const useSync = () => {
                   longitude: item.longitude,
                 },
                 details: JSON.parse(item.details),
-                status: "pending", // Update status from 'offline' to 'pending'
+                status: "pending",
                 createdAt: item.createdAt,
               });
 

@@ -1,5 +1,5 @@
 import Header from "@/components/Header"; // Ensure this path is correct
-import { useBroadcastTimer } from "@/hooks/useBroadcastTimer";
+import { useBroadcastTimer } from "@/hooks/use-broadcast-timer";
 import { db } from "@/services/firebaseConfig";
 import {
   router,

@@ -16,7 +16,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { saveRequestOffline } from "../../utils/offlineStorage";
+import { saveRequestOffline } from "../../utils/offline-storage";
 
 type FormData = {
   vehicle: string;

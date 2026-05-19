@@ -1,13 +1,13 @@
-import { Slot,Stack } from "expo-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import "react-native-reanimated";
-import OfflineBanner from "../components/offlineBanner";
-import { useSync } from "../hooks/useSync";
-import { initDB } from "../utils/offlineStorage";
+import OfflineBanner from "../components/offline-banner";
+import { useSync } from "../hooks/use-sync";
+import { initDB } from "../utils/offline-storage";
 import WelcomeScreen from "./welcomeSplash";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 let hasFinishedSplash = false;
 const queryClient = new QueryClient();
 export default function RootLayout() {
@@ -27,23 +27,23 @@ export default function RootLayout() {
   useSync();
   return (
     <QueryClientProvider client={queryClient}>
-    <View style={{ flex: 1 }}>
-      <OfflineBanner />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="selectRole" />
-        <Stack.Screen name="login" />
-      </Stack>
+      <View style={{ flex: 1 }}>
+        <OfflineBanner />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="selectRole" />
+          <Stack.Screen name="login" />
+        </Stack>
 
-      {!isAppReady && (
-        <View style={StyleSheet.absoluteFill}>
-          <WelcomeScreen />
-        </View>
-      )}
+        {!isAppReady && (
+          <View style={StyleSheet.absoluteFill}>
+            <WelcomeScreen />
+          </View>
+        )}
 
-      <StatusBar style="dark" />
-    </View>
+        <StatusBar style="dark" />
+      </View>
     </QueryClientProvider>
   );
 }

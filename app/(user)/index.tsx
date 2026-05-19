@@ -20,20 +20,79 @@ import {
   View,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { saveRequestOffline } from "../../utils/offlineStorage";
+import { saveRequestOffline } from "../../utils/offline-storage";
 
 const services = [
-  { id: 1, title: "Fuel Delivery", color: "#E9FCE9", icon: "gas-station", circle: "#C7FAC9", iconColor: "#4FBF67" },
-  { id: 2, title: "Tow Truck", color: "#FCE9E9", icon: "truck", circle: "#FAC7C7", iconColor: "#F15757" },
-  { id: 3, title: "Tire Repair or Replacement", color: "#E8F7FC", icon: "tire", circle: "#CBF0FB", iconColor: "#71D7F4" },
-  { id: 4, title: "On-site Mechanic", color: "#FFFDCD", icon: "tools", circle: "#FFFA72", iconColor: "#FECB4C" },
-  { id: 5, title: "Jump Start", color: "#FCF1EA", icon: "battery-charging", circle: "#FEDAC2", iconColor: "#FD914C" },
+  {
+    id: 1,
+    title: "Fuel Delivery",
+    color: "#E9FCE9",
+    icon: "gas-station",
+    circle: "#C7FAC9",
+    iconColor: "#4FBF67",
+  },
+  {
+    id: 2,
+    title: "Tow Truck",
+    color: "#FCE9E9",
+    icon: "truck",
+    circle: "#FAC7C7",
+    iconColor: "#F15757",
+  },
+  {
+    id: 3,
+    title: "Tire Repair or Replacement",
+    color: "#E8F7FC",
+    icon: "tire",
+    circle: "#CBF0FB",
+    iconColor: "#71D7F4",
+  },
+  {
+    id: 4,
+    title: "On-site Mechanic",
+    color: "#FFFDCD",
+    icon: "tools",
+    circle: "#FFFA72",
+    iconColor: "#FECB4C",
+  },
+  {
+    id: 5,
+    title: "Jump Start",
+    color: "#FCF1EA",
+    icon: "battery-charging",
+    circle: "#FEDAC2",
+    iconColor: "#FD914C",
+  },
 ];
 
 const emergencyContacts = [
-  { id: "police", title: "Police", number: "100", icon: "shield-alert", color: "#E3F2FD", circle: "#BBDEFB", iconColor: "#1565C0" },
-  { id: "ambulance", title: "Ambulance", number: "101", icon: "ambulance", color: "#FFEBEE", circle: "#FFCDD2", iconColor: "#C62828" },
-  { id: "civil_defense", title: "Civil Defense", number: "102", icon: "fire-truck", color: "#FFF3E0", circle: "#FFE0B2", iconColor: "#EF6C00" },
+  {
+    id: "police",
+    title: "Police",
+    number: "100",
+    icon: "shield-alert",
+    color: "#E3F2FD",
+    circle: "#BBDEFB",
+    iconColor: "#1565C0",
+  },
+  {
+    id: "ambulance",
+    title: "Ambulance",
+    number: "101",
+    icon: "ambulance",
+    color: "#FFEBEE",
+    circle: "#FFCDD2",
+    iconColor: "#C62828",
+  },
+  {
+    id: "civil_defense",
+    title: "Civil Defense",
+    number: "102",
+    icon: "fire-truck",
+    color: "#FFF3E0",
+    circle: "#FFE0B2",
+    iconColor: "#EF6C00",
+  },
 ];
 
 export default function HomeScreen() {
@@ -62,7 +121,7 @@ export default function HomeScreen() {
       if (reverseGeocode.length > 0) {
         const addr = reverseGeocode[0];
         setLocationName(
-          `${addr.street || "Unknown Street"}, ${addr.city || "Nablus"}`
+          `${addr.street || "Unknown Street"}, ${addr.city || "Nablus"}`,
         );
       }
     } catch (e) {
@@ -78,7 +137,7 @@ export default function HomeScreen() {
     if (status !== "granted") {
       Alert.alert(
         "Permission Denied",
-        "Please allow location access to use this feature."
+        "Please allow location access to use this feature.",
       );
       setLoading(false);
       return;
@@ -125,7 +184,7 @@ export default function HomeScreen() {
             });
           },
         },
-      ]
+      ],
     );
   };
 
@@ -260,7 +319,7 @@ export default function HomeScreen() {
                                 requestPayload.serviceType,
                                 requestPayload.details,
                                 requestPayload.location,
-                                requestPayload.address
+                                requestPayload.address,
                               );
 
                               const finalServiceTitle =
@@ -279,14 +338,14 @@ export default function HomeScreen() {
                           } catch (error: any) {
                             Alert.alert(
                               "Error",
-                              error.message || "Failed to send request"
+                              error.message || "Failed to send request",
                             );
                           } finally {
                             setLoading(false);
                           }
                         },
                       },
-                    ]
+                    ],
                   );
                 }
               }}
@@ -296,7 +355,9 @@ export default function HomeScreen() {
                 pressed && { opacity: 0.7, transform: [{ scale: 0.96 }] },
               ]}
             >
-              <View style={[styles.iconCircle, { backgroundColor: item.circle }]}>
+              <View
+                style={[styles.iconCircle, { backgroundColor: item.circle }]}
+              >
                 <MaterialCommunityIcons
                   name={item.icon as any}
                   size={28}
@@ -316,7 +377,9 @@ export default function HomeScreen() {
             {emergencyContacts.map((contact) => (
               <Pressable
                 key={contact.id}
-                onPress={() => handleCallEmergency(contact.number, contact.title)}
+                onPress={() =>
+                  handleCallEmergency(contact.number, contact.title)
+                }
                 style={({ pressed }) => [
                   styles.emergencyCard,
                   { backgroundColor: contact.color },
