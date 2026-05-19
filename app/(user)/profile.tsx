@@ -18,6 +18,7 @@ import {
   View,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
+import axios from "axios";
 const IMGBB_API_KEY = "f8c1bfe3710715a1fe2209d1fa0471b2";
 
 export default function Profile() {
@@ -34,17 +35,11 @@ export default function Profile() {
     });
 
     try {
-      const response = await fetch(
-        `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
-      );
-      const data = await response.json();
+     const response = await axios.post(
+       `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+       formData,
+     );
+      const data = response.data;
 
       if (data.success) {
         const remoteUrl = data.data.url;
